@@ -76,8 +76,7 @@ export const isPromise = (target) =>  {
 
 export const doOnlyAfterResolve = (meta, cb) => {
     if (isPromise(meta)) {
-        var chain = meta.then ? meta.then(cb).catch(console.trace.bind(console)) : cb(meta);
-        return chain;
+        return (meta.then ? meta.then(cb).catch(console.trace.bind(console)) : cb(meta));
     }
     return cb(meta);
 }

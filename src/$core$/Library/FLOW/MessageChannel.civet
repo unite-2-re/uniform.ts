@@ -1,26 +1,37 @@
-// deno-lint-ignore-file no-explicit-any
 import PreCoding from "../PreCoding/PreCoding";
 import { doOnlyAfterResolve, ORG } from "../Utils/Useful";
 
-//
-/*@__MANGLE_PROP__*/ export const $cd = new PreCoding();
-/*@__MANGLE_PROP__*/ export const $mp = $cd.$mp;
-/*@__MANGLE_PROP__*/ export const $dh = $cd.$hndr;
-
-//
-export const $resolver = (command: any) => (command.result);
-export const $handler  = (command: any) => {
-    const {args: [cmd, target, ...args]} = command;
-
-    //
-    const transfer: unknown[] = [];
-    if (cmd == "apply" && args.length >= 3) { transfer.push(...args.splice(2)); }
-    if (cmd == "dispose") { $mp.discount(target?.[ORG.uuid] || target); };
-
-    // before you needs decode its
-    return doOnlyAfterResolve($cd.decode([cmd, target, ...args], transfer), ([cmd, target, ...args])=>{
-        const result = $dh?.$getHandler?.("pms")?.$hnd?.(cmd, target, ...args);
-        const ready  = $cd.encode(result, transfer);
-        return [ready, transfer] // also, needs to recode back
-    });
+interface Command {
+    args: unknown[];
+    result?: unknown;
 }
+
+const preCoding = new PreCoding();
+export const $cd = preCoding;
+export const $mp = preCoding.$mp;
+export const $dh = preCoding.$hndr;
+
+export const $resolver = (command: Command): unknown => command.result;
+
+export const $handler = (command: Command): Promise<[unknown, unknown[]]> => {
+    const [cmd, target, ...args] = command.args;
+    const transfer: unknown[] = [];
+
+    if (cmd === "apply" && args.length >= 3) {
+        transfer.push(...args.splice(2));
+    }
+
+    if (cmd === "dispose") {
+        const key = (target && typeof target === "object" ? (target as Record<string, unknown>)[ORG.uuid] : undefined) ?? target;
+        $mp.discount(key);
+    }
+
+    return doOnlyAfterResolve(
+        $cd.decode([cmd, target, ...args], transfer),
+        ([decodedCmd, decodedTarget, ...decodedArgs]) => {
+            const result = $dh?.$getHandler?.("pms")?.$hnd?.(decodedCmd, decodedTarget, ...decodedArgs);
+            const ready = $cd.encode(result, transfer);
+            return [ready, transfer];
+        }
+    );
+};

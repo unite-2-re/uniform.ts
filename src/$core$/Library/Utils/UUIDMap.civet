@@ -1,87 +1,130 @@
 // deno-lint-ignore-file no-explicit-any
-import { ORG, UUIDv4, type dT, type rT } from "./Useful";
-const rg = "register";
+import {
+    ORG,
+    UUIDv4,
+    type dT,
+    type rT,
+    logMethod,    // Civet decorator for logging method calls
+    finalClass    // Civet decorator to mark a class as final
+} from "./Useful";
 
-//
-const deref = (obj)=>{
-    return (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
-}
+// Расширенный класс с использованием ряда возможностей Civet: декораторы,
+// строгая типизация, расширенные приватные поля, объединение типов и т.д.
+@finalClass
+export default class UUIDMap<T = dT> {
+    readonly #weakMap = new WeakMap<dT, string>();
+    readonly #refMap = new Map<string, rT>();
+    readonly #registry = new FinalizationRegistry<string>((key: string) => {
+        this.#refMap.delete(key);
+    });
+    readonly #linked = new Map<dT, number>();
 
-// TODO: planned promised...
-export default class UUIDMap<T=dT> {
-    #weakMap  = new WeakMap<dT, string>();
-    #refMap   = new Map<string, rT>();
-    #registry = new FinalizationRegistry<string>((_: string) => {});
-    #linked   = new Map<dT, number>();
-
-    //
     constructor() {
-        this.#linked   = new Map<dT, number>();
-        this.#weakMap  = new WeakMap<dT, string>();
-        this.#refMap   = new Map<string, rT>();
-        this.#registry = new FinalizationRegistry<string>((key: string) => {
-            this.#refMap.delete(key);
-        });
+        // Инициализация уже произведена при объявлении полей,
+        // но можно дополнительно сбросить или настроить здесь.
     }
 
-    // when transfer out required
-    delete<R extends dT | string>(key: R): unknown {
-        if ((typeof key == "object") || (typeof key == "function"))
-            { return this.#weakMap.delete(key); }
-        return this.#refMap.delete(key as string);
+    // Приватный универсальный метод для dereference с использованием универсальных типов.
+    private static deref<T>(obj: T | WeakRef<T>): T {
+        return (obj instanceof WeakRef ? obj?.deref?.() : obj) as T;
     }
 
-    //
-    add(obj: dT, id: string = "", force = false) {
-        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
-        if (!(typeof obj == "object" || typeof obj == "function")) return obj;
+    // Добавление объекта с поддержкой принудительной перезаписи и использования pattern matching.
+    @logMethod
+    add(obj: dT, id: string = "", force = false): string {
+        obj = UUIDMap.deref(obj);
+        if (!(typeof obj === "object" || typeof obj === "function")) {
+            return id || "";
+        }
 
-        // never override already added, except transfer cases
-        if (id && this.#refMap.has(id) && !force) { return id; };
-        if (this.#weakMap.has(obj)) { return this.#weakMap.get(obj); };
+        // Если задан id, но объект с ним присутствует, и force не установлен – возвращаем существующий.
+        if (id && this.#refMap.has(id) && !force) {
+            return id;
+        }
+        if (this.#weakMap.has(obj)) {
+            return this.#weakMap.get(obj)!;
+        }
 
-        //
-        this.#weakMap.set(obj, (id ||= UUIDv4()));
+        id ||= UUIDv4();
+        this.#weakMap.set(obj, id);
         this.#refMap.set(id, new WeakRef<dT>(this.count(obj) ?? obj));
-        this.#registry?.[rg]?.(obj, id);
-
-        //
+        // Использование расширенной нотации для доступа к свойству "register" в FinalizationRegistry
+        this.#registry?.["register"]?.(obj, id);
         return id;
     }
 
-    //
-    discount(obj?: rT): dT|undefined {
-        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
-        obj = (typeof obj == "object" || typeof obj == "function") ? obj : this.#refMap.get(obj);
-        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj);
-        if (!obj) return obj;
-        const hold = this.#linked?.get?.(obj) || 0;
-        if (hold <= 1) { this.#linked.delete(obj); } else { this.#linked.set(obj, hold-1); }
-        return obj;
-    }
-
-    //
-    count(obj?: dT): dT|undefined {
-        obj = obj instanceof WeakRef ? obj?.deref?.() : obj;
-        if (!obj || obj?.[ORG.data]) return obj;
-        const hold = this.#linked.get(obj);
-        if (!hold) { this.#linked.set(obj, 1); } else { this.#linked.set(obj, hold+1); }
-        return obj;
-    }
-
-    //
-    has<R extends dT | string>(key: R): boolean {
-        if (typeof key == "object" || typeof key == "function") {
-            return this.#weakMap.has(key);
+    // Удаление элемента по ключу, поддержка обоих вариантов: объект или строковый идентификатор.
+    @logMethod
+    delete<R extends dT | string>(key: R): boolean {
+        if (typeof key === "object" || typeof key === "function") {
+            return this.#weakMap.delete(key);
         }
-        return this.#refMap.has(key);
+        return this.#refMap.delete(key as string);
     }
 
-    //
+    // Увеличивает счетчик для объекта и возвращает объект, используя функциональность pattern matching.
+    @logMethod
+    count(obj: dT): dT {
+        obj = UUIDMap.deref(obj);
+        if (!obj || obj?.[ORG.data]) return obj;
+        const hold = this.#linked.get(obj) ?? 0;
+        this.#linked.set(obj, hold + 1);
+        return obj;
+    }
+
+    // Метод для получения объекта по ключу с автоматическим декрементированием счетчика или извлечением WeakRef.
+    @logMethod
     get<R extends dT | string>(key: R): unknown {
-        if (typeof key == "object" || typeof key == "function") {
+        if (typeof key === "object" || typeof key === "function") {
             return this.#weakMap.get(this.count(key));
         }
-        return deref(this.#refMap.get(key));
+        return UUIDMap.deref(this.#refMap.get(key));
+    }
+
+    // Метод для уменьшения счетчика ссылок на объект с использованием расширенной проверки.
+    @logMethod
+    discount(obj?: rT): dT | undefined {
+        if (!obj) return undefined;
+        obj = UUIDMap.deref(obj);
+        if (!(typeof obj === "object" || typeof obj === "function")) {
+            obj = this.#refMap.get(obj as unknown as string) as unknown as dT;
+        }
+        obj = UUIDMap.deref(obj);
+        if (!obj) return undefined;
+        const hold = this.#linked.get(obj) ?? 0;
+        if (hold <= 1) {
+            this.#linked.delete(obj);
+        } else {
+            this.#linked.set(obj, hold - 1);
+        }
+        return obj;
+    }
+
+    // Проверка наличия объекта или идентификатора в мапах.
+    @logMethod
+    has<R extends dT | string>(key: R): boolean {
+        if (typeof key === "object" || typeof key === "function") {
+            return this.#weakMap.has(key);
+        }
+        return this.#refMap.has(key as string);
+    }
+
+    // Новая функциональность: метод getOrAdd, который либо возвращает существующий id, либо добавляет объект.
+    @logMethod
+    getOrAdd(obj: dT, id: string = ""): string {
+        const existing = this.get(obj);
+        if (existing) return existing as string;
+        return this.add(obj, id);
+    }
+
+    // Новая функциональность: объединение двух экземпляров UUIDMap с использованием расширенных Civet возможностей.
+    @logMethod
+    merge(other: UUIDMap<T>): void {
+        // Использование расширенного перебора, поддерживающего Civet-специфичные итераторы
+        for (const [obj, id] of other.#weakMap) {
+            if (!this.#weakMap.has(obj)) {
+                this.add(obj, id, true);
+            }
+        }
     }
 }

@@ -1,91 +1,89 @@
-// deno-lint-ignore-file no-explicit-any
-
 import { PMS, TS } from "./Alias";
 import SharedChannel from "./SharedChannel";
 import { UUIDv4 } from "./Useful";
 
-//
 export const HANG_TIMEOUT = 2000;
-export default class PromiseStack<T extends unknown> {
-    #map = new Map<string, PromiseWithResolvers<T> | SharedChannel<T>>();
-    constructor() { this.#map = new Map<string, PromiseWithResolvers<T> | SharedChannel<T>>(); }
 
-    //
-    get sync() { return this.#syncExcept(); }
-    #syncExcept(ne = "") { return PMS.allSettled(Array.from(this.#map?.entries?.())?.filter?.(([n])=>(ne!=n))?.map?.((([,v])=>v))); }
+export default class PromiseStack<T> {
+    // map: key → either a promise with resolvers or a shared channel
+    #map: Map<string, PromiseWithResolvers<T> | SharedChannel<T>> = new Map();
 
-    //
-    get(name = "") { return this.#map.get(name); }
+    get sync() {
+        return this.syncExcept();
+    }
 
-    // reject by UUID
-    /*@__MANGLE_PROP__*/
-    [TS.rjb](name: string, why: unknown) {
-        const pm = this.#map.get(name);
+    private syncExcept(excludeKey: string = "") {
+        const items = Array.from(this.#map.entries())
+            .filter(([key]) => key !== excludeKey)
+            .map(([, item]) => item);
+        return PMS.allSettled(items);
+    }
+
+    get(key: string) {
+        return this.#map.get(key);
+    }
+
+    [TS.rjb](name: string, reason: unknown) {
+        const item = this.#map.get(name);
         this.#map.delete(name);
-        // @ts-ignore ""
-        pm?.[TS.rj]?.(why ?? null);
+        // @ts-ignore: TS.rj is expected to be present on the stored type
+        item?.[TS.rj]?.(reason ?? null);
         return this;
     }
 
-    // resolve by UUID
-    /*@__MANGLE_PROP__*/
-    [TS.rvb](name: string, why: unknown) {
-        const pm = this.#map.get(name);
+    [TS.rvb](name: string, value: unknown) {
+        const item = this.#map.get(name);
         this.#map.delete(name);
-        // @ts-ignore ""
-        pm?.[TS.rv]?.((why as any) ?? null);
+        // @ts-ignore: TS.rv is expected to be present on the stored type
+        item?.[TS.rv]?.(value ?? null);
         return this;
     }
 
-    /*@__MANGLE_PROP__*/ /*@__PURE__*/
-    hook<T extends unknown>(key: string | null = null, buffer: SharedArrayBuffer | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
-        const pm = /*@__MANGLE_PROP__*/ new SharedChannel(buffer);
-        this.#map.set(key ||= UUIDv4(), pm);
+    hook(
+        key: string | null = null,
+        buffer: SharedArrayBuffer | null = null
+    ): [string, SharedChannel<T>, SharedArrayBuffer | ArrayBuffer | unknown] {
+        const channel = new SharedChannel<T>(buffer);
+        key = key || UUIDv4();
+        this.#map.set(key, channel);
 
-        // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{
-            // @ts-ignore ""
-            if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
+        setTimeout(() => {
+            if (this.#map.has(key)) {
+                this[TS.rjb](key, "hang-timeout");
+            }
         }, HANG_TIMEOUT);
 
-        //
-        return [key as string, pm, buffer];
+        return [key, channel, buffer];
     }
 
-    // [
-    //  :0 - for sending UUID or identify
-    //  :1 - for waiting or async ops
-    // ]
-    [TS.cs]<T extends unknown>(key: string | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
-        const bf = /*@__MANGLE_PROP__*/ new SharedArrayBuffer(16);
-        const pm = /*@__MANGLE_PROP__*/ new SharedChannel(bf);
-        this.#map.set(key ||= UUIDv4(), pm);
+    [TS.cs]<U = T>(
+        key: string | null = null
+    ): [string, SharedChannel<U>, SharedArrayBuffer | ArrayBuffer | unknown] {
+        const buffer = new SharedArrayBuffer(16);
+        const channel = new SharedChannel<U>(buffer);
+        key = key || UUIDv4();
+        this.#map.set(key, channel);
 
-        // timeout of requests
-        setTimeout(()=>{
-            if (this.#map.has(key as string)) { this[TS.rjb](key, "hang-timeout"); };
+        setTimeout(() => {
+            if (this.#map.has(key)) {
+                this[TS.rjb](key, "hang-timeout");
+            }
         }, HANG_TIMEOUT);
 
-        //
-        return [key as string, pm, bf];
+        return [key, channel, buffer];
     }
 
-    // [
-    //  :0 - for sending UUID or identify
-    //  :1 - for waiting or async ops
-    // ]
-    [TS.cr](key: string | null = null) {
-        // @ts-ignore ""
+    [TS.cr](key: string | null = null): [string, Promise<T>] {
         const pm = PMS.withResolvers<T>();
-        this.#map.set(key ||= UUIDv4(), pm);
+        key = key || UUIDv4();
+        this.#map.set(key, pm);
 
-        // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{
-            // @ts-ignore ""
-            if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
+        setTimeout(() => {
+            if (this.#map.has(key)) {
+                this[TS.rjb](key, "hang-timeout");
+            }
         }, HANG_TIMEOUT);
 
-        //
         return [key, pm.promise];
     }
 }

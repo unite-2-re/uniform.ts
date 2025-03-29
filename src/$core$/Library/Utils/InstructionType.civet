@@ -1,42 +1,63 @@
-// deno-lint-ignore-file ban-types no-explicit-any no-explicit-any ban-types no-explicit-any no-explicit-any
 import { ORG, type IMeta } from "./OrganicType";
-import { doOnlyAfterResolve, IWrap, MPromise } from "./Useful";
+import { doOnlyAfterResolve, type IWrap, type MPromise } from "./Useful";
 
-//
-export const MakeReference = (data: any = null): Function|object => {
-    // not ordinal not acceptable
-    if (data == null || (typeof data != "function" && typeof data != "object")) {
+// Define an interface for the function proxy with attached data and stringify methods.
+interface OrganicFunction extends Function {
+    [ORG.data]?: unknown;
+    stringify: () => string;
+    prototype: {
+        stringify: () => string;
+    };
+}
+
+// MakeReference accepts any data and returns a proxy function or the data itself.
+export const MakeReference = (data: unknown = null): Function | object => {
+    // If data is null or a primitive and not a function or object, return it directly.
+    if (
+        data == null ||
+        (typeof data !== "function" && typeof data !== "object")
+    ) {
         return data;
     }
 
-    // already is functional, skip it
-    if (typeof data == "function" && data?.[ORG.data]) { return data; }
-
-    // make function or class compatible for proxy
-    const fx = function(this: any) { if (this?) { this[ORG.data] = data; }; }
-    if (fx?) {
-        fx.prototype.stringify = function (){ return JSON.stringify(this[ORG.data] || "{}"); }
-        fx.stringify = ()=>{ return JSON.stringify(data || "{}"); }
-
-        // @ts-ignore "typescript not supports Symbol"
-        fx[ORG.data] = data;
+    // If data is already a function and has an attached ORG.data, return it as is.
+    if (typeof data === "function" && (data as any)[ORG.data] !== undefined) {
+        return data;
     }
 
-    //
-    return fx;
-}
+    // Create a proxy function.
+    const fx = function (this: any): void {
+        if (this) {
+            this[ORG.data] = data;
+        }
+    } as OrganicFunction;
 
-// any meta contains, and can't to be primitive or array directly
-// only constructor, function, or object
-export const bindCtx = (gt: any, ref: any|null = null)=>{
+    // Add stringify methods to the function and its prototype.
+    fx.prototype.stringify = function (): string {
+        return JSON.stringify(this[ORG.data] ?? "{}");
+    };
+
+    fx.stringify = (): string => {
+        return JSON.stringify(data ?? "{}");
+    };
+
+    // Assign original data to the property keyed by ORG.data.
+    fx[ORG.data] = data;
+
+    return fx;
+};
+
+// bindCtx attempts to bind the provided context to the given function if applicable.
+export const bindCtx = (gt: unknown, ref: unknown = null): unknown => {
     if (typeof gt == "function" && typeof gt?.bind == "function" && (typeof ref == "object" || typeof ref == "function")) {
         // may be organic or context detached
         return gt?.bind?.(ref) ?? gt;
     }
     return gt;
-}
+};
 
-export const wrapWeakMap = new WeakMap([]);
+// Create a WeakMap for wrapping objects.
+export const wrapWeakMap: WeakMap<object, unknown> = new WeakMap();
 export const prepare = <T extends unknown>(w: IWrap<T>|T|IMeta): any => {
     return doOnlyAfterResolve(w, (wrap: any)=>{
         if (wrap?.[ORG.data]) return wrap?.[ORG.data];

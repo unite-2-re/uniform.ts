@@ -1,75 +1,85 @@
 // deno-lint-ignore-file no-explicit-any
 import ObjectProxy from "../../Interface/ObjectProxy";
-
-//
-import { isSymbol, FORBIDDEN_KEYS, META_KEYS, isPromise, doOnlyAfterResolve, type IWrap } from "../Utils/Useful"
+import {
+    isSymbol,
+    FORBIDDEN_KEYS,
+    META_KEYS,
+    isPromise,
+    doOnlyAfterResolve,
+    type IWrap,
+} from "../Utils/Useful";
 import { bindCtx, MakeReference } from "../Utils/InstructionType";
 import ORG from "../Utils/OrganicType";
-
-//
 import DataHandler from "./DataHandler";
 
-
+// Обработчик для работы с Promise
 export default class PromiseHandler extends DataHandler {
-    constructor() { super(); }
-
-    //
-    $data(target: unknown|Promise<unknown>) {
-        return (isPromise((target as any)?.[ORG.data]) ? (target as any)?.[ORG.data] : target) ?? target;
+    constructor() {
+        super();
     }
 
-    //
-    $deferOp(target: unknown|Promise<unknown>, cb = (e: any)=>e) {
+    // Получение данных из target, если данные асинхронны - извлекаем их из свойства ORG.data
+    $data(target: unknown | Promise<unknown>): unknown {
+        const maybeData = (target as any)?.[ORG.data];
+        return (isPromise(maybeData) ? maybeData : target) ?? target;
+    }
+
+    // Выполняет callback после разрешения Promise
+    $deferOp(target: unknown | Promise<unknown>, cb: (e: any) => any = (e) => e): unknown {
         return doOnlyAfterResolve(target, cb) ?? target;
     }
 
-    //
-    $wrapPromise<T extends unknown>(result: T|Promise<T>, handler: DataHandler|null = null): IWrap<T>|null {
+    // Оборачивает результат в Proxy, если это Promise
+    $wrapPromise<T>(result: T | Promise<T>, handler: DataHandler | null = null): IWrap<T> | null {
         return $wrapPromise(result, handler ?? this);
     }
 
-    //
-    $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
-        // isn't promise itself
+    // Основной обработчик команд (get, then, catch, finally и пр.)
+    $hnd(cmd: string, meta: unknown, ...args: unknown[]): any {
         const data = this.$data(meta);
 
-        //
-        if (cmd == "get") {
-            if (args[0] == ORG.data) { return data; };
-            if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any)=>e?.[ORG.exc]) ?? null; };
-            //if (args[0] == ORG.dispose) { return data?.[ORG.dispose] ?? data?.then?.((e: any)=>e?.[ORG.dispose]) ?? null; };
+        if (cmd === "get") {
+            if (args[0] === ORG.data) return data;
+            if (args[0] === ORG.exc)
+                return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any) => e?.[ORG.exc]) ?? null;
 
-            //
-            if (["then", "catch", "finally"].indexOf((args as any[])?.[0]) >= 0) {
-                // @ts-ignore "no idea"
-                return bindCtx(Reflect?.[cmd]?.(data, ...args), data);
+            if (["then", "catch", "finally"].includes(args[0] as string)) {
+                // Привязываем контекст выполнения к data
+                return bindCtx(Reflect[cmd](data, ...args), data);
             }
 
-            //
-            if ( // forbidden actions
-                isSymbol(args?.[0]) ||
-                FORBIDDEN_KEYS.has(args?.[0] as string) ||
-                META_KEYS.has?.(args?.[0] as any)
-            ) { return null; };
+            // Запрещённые действия
+            if (
+                isSymbol(args[0]) ||
+                (typeof args[0] === "string" && FORBIDDEN_KEYS.has(args[0])) ||
+                META_KEYS.has?.(args[0])
+            ) {
+                return null;
+            }
         }
 
-        // primitive value or non-object/function
-        if (data == null || (typeof data != "object" && typeof data != "function")) { return data; };
+        // Если data примитив или null, возвращаем его
+        if (data == null || (typeof data !== "object" && typeof data !== "function")) return data;
 
-        // unwrap first-level promise
-        return this.$wrapPromise(this.$deferOp(data, (raw)=> {
-            return super.$hnd(cmd, raw, ...args);
-        }));
+        // Разворачиваем вложенный Promise и делегируем обработку
+        return this.$wrapPromise(
+            this.$deferOp(data, (raw) => super.$hnd(cmd, raw, ...args))
+        );
     }
 
-    //
-    $get(_uuid: unknown|string|null): any { return null; };
+    // Метод получения по uuid (не реализован)
+    $get(_uuid: unknown | string | null): any {
+        return null;
+    }
 }
 
-//
-export const $wrapPromise = <T extends unknown>(result: T|Promise<T>, handler: DataHandler = new PromiseHandler()): IWrap<T>|null => {
+// Вспомогательная функция для обёртки результата Promise
+export const $wrapPromise = <T>(
+    result: T | Promise<T>,
+    handler: DataHandler = new PromiseHandler()
+): IWrap<T> | null => {
     if (isPromise(result)) {
-        return new Proxy(MakeReference(result), new ObjectProxy(handler)) as IWrap<T>|null;
+        return new Proxy(MakeReference(result), new ObjectProxy(handler)) as IWrap<T>;
     }
     return result as IWrap<T>;
-}
+};
