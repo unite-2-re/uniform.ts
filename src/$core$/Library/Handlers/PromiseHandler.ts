@@ -37,6 +37,7 @@ export default class PromiseHandler extends DataHandler {
         if (cmd == "get") {
             if (args[0] == ORG.data) { return data; };
             if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any)=>e?.[ORG.exc]) ?? null; };
+            //if (args[0] == ORG.dispose) { return data?.[ORG.dispose] ?? data?.then?.((e: any)=>e?.[ORG.dispose]) ?? null; };
 
             //
             if (["then", "catch", "finally"].indexOf((args as any[])?.[0]) >= 0) {
@@ -47,7 +48,7 @@ export default class PromiseHandler extends DataHandler {
             //
             if ( // forbidden actions
                 isSymbol(args?.[0]) ||
-                FORBIDDEN_KEYS.has(args?.[0] as string) || 
+                FORBIDDEN_KEYS.has(args?.[0] as string) ||
                 META_KEYS.has?.(args?.[0] as any)
             ) { return null; };
         }

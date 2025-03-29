@@ -1,37 +1,23 @@
 // deno-lint-ignore-file no-explicit-any
-import { UUIDv4, type dT, type rT } from "./Useful";
+import { ORG, UUIDv4, type dT, type rT } from "./Useful";
 /*@__NOINLINE__*/ const rg = "register";
 
-/*@__MANGLE_PROP__*/ const timers = /*@__MANGLE_PROP__*/ new WeakMap(), tmpSet = new Set();
-export const hold = (tmp: any | unknown | WeakRef<any>, timeout = 1000)=>{
-
-    // holding from GC
-    /*@__MANGLE_PROP__*/
-    if (typeof tmp == "object" || typeof tmp == "function") {
-        const obj = tmp?.deref?.() ?? tmp;
-        if (!tmpSet.has(obj)) {
-            tmpSet.add(obj);
-            timers.set(obj, setTimeout(
-                (obj) => { return tmpSet.delete(obj); },
-                timeout,
-                obj
-            ));
-        }
-    }
-
-    //
-    return tmp?.deref?.() ?? tmp;
+//
+const deref = (obj)=>{
+    return (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
 }
 
 // TODO: planned promised...
-/*@__MANGLE_PROP__*/ /*@__PURE___*/ 
+/*@__MANGLE_PROP__*/ /*@__PURE___*/
 export default class UUIDMap<T=dT> {
     /*@__MANGLE_PROP__*/ #weakMap  = /*@__MANGLE_PROP__*/ new WeakMap<dT, string>();
     /*@__MANGLE_PROP__*/ #refMap   = /*@__MANGLE_PROP__*/ new Map<string, rT>();
     /*@__MANGLE_PROP__*/ #registry = /*@__MANGLE_PROP__*/ new FinalizationRegistry<string>((_: string) => {});
+    /*@__MANGLE_PROP__*/ #linked   = /*@__MANGLE_PROP__*/ new Map<dT, number>();
 
     //
     constructor() {
+        /*@__MANGLE_PROP__*/ this.#linked   = /*@__MANGLE_PROP__*/ new Map<dT, number>();
         /*@__MANGLE_PROP__*/ this.#weakMap  = /*@__MANGLE_PROP__*/ new WeakMap<dT, string>();
         /*@__MANGLE_PROP__*/ this.#refMap   = /*@__MANGLE_PROP__*/ new Map<string, rT>();
         /*@__MANGLE_PROP__*/ this.#registry = /*@__MANGLE_PROP__*/ new FinalizationRegistry<string>((key: string) => {
@@ -49,19 +35,16 @@ export default class UUIDMap<T=dT> {
 
     //
     add(obj: dT, id: string = "", force = false) {
+        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
         if (!(typeof obj == "object" || typeof obj == "function")) return obj;
 
         // never override already added, except transfer cases
         if (id && this.#refMap.has(id) && !force) { return id; };
-
-        //
-        if (this.#weakMap.has(obj)) {
-            return this.#weakMap.get(obj);
-        }
+        if (this.#weakMap.has(obj)) { return this.#weakMap.get(obj); };
 
         //
         this.#weakMap.set(obj, (id ||= UUIDv4()));
-        this.#refMap.set(id, new WeakRef<dT>(  hold(obj, 1000)  ));
+        this.#refMap.set(id, new WeakRef<dT>(this.count(obj) ?? obj));
         this.#registry?.[rg]?.(obj, id);
 
         //
@@ -69,18 +52,38 @@ export default class UUIDMap<T=dT> {
     }
 
     //
+    discount(obj?: rT): dT|undefined {
+        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
+        obj = (typeof obj == "object" || typeof obj == "function") ? obj : this.#refMap.get(<string>(<unknown>obj));
+        obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
+        if (!obj) return obj;
+        const hold = this.#linked?.get?.(obj) || 0;
+        if (hold <= 1) { this.#linked.delete(obj); } else { this.#linked.set(obj, hold-1); }
+        return obj;
+    }
+
+    //
+    count(obj?: dT): dT|undefined {
+        obj = obj instanceof WeakRef ? obj?.deref?.() : obj;
+        if (!obj || obj?.[ORG.data]) return obj;
+        const hold = this.#linked.get(obj);
+        if (!hold) { this.#linked.set(obj, 1); } else { this.#linked.set(obj, hold+1); }
+        return obj;
+    }
+
+    //
     has<R extends dT | string>(key: R): boolean {
         if (typeof key == "object" || typeof key == "function") {
             return this.#weakMap.has(<dT>(<unknown>key));
         }
-        return hold(this.#refMap.has(<string>(<unknown>key)));
+        return this.#refMap.has(<string>(<unknown>key));
     }
 
     //
     get<R extends dT | string>(key: R): unknown {
         if (typeof key == "object" || typeof key == "function") {
-            return this.#weakMap.get(<dT>(<unknown>key));
+            return this.#weakMap.get(<dT>this.count(<any>key));
         }
-        return hold(this.#refMap.get(<string>(<unknown>key)));
+        return deref(this.#refMap.get(<string>(<unknown>key)));
     }
 }

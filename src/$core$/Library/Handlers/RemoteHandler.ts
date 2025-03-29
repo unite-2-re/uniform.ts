@@ -25,12 +25,13 @@ export default class RemoteReferenceHandler extends DataHandler {
         const data: any = this.$data(meta);
 
         // return meta as is
-        if (cmd == "get") {
+        if (cmd == "get") { // any remote is disposable
+            if (args[0] == ORG.dispose) { return ()=>{ return this.#exChanger?.$request("dispose", meta, []); }; };
             if (args[0] == ORG.data) { return data; };
             if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any)=>e?.[ORG.exc]) ?? null; };
             if ( // forbidden actions
                 isSymbol(args?.[0]) ||
-                FORBIDDEN_KEYS.has(args?.[0] as string) || 
+                FORBIDDEN_KEYS.has(args?.[0] as string) ||
                 META_KEYS.has?.(args?.[0] as any)
             ) { return null; };
         }

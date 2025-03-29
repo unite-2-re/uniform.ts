@@ -6,19 +6,20 @@
     "type": "module",
     "index": "./dist/uniform.js",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --host 0.0.0.0",
         "worker": "vite build",
         "watch": "vite build --watch",
         "build": "vite build --config vite.config.js",
         "build-wp": "webpack build --mode=production",
         "preview": "vite preview",
-        "test": "deno run --allow-all ./test/Host.ts"
+        "test": "deno run --unstable-sloppy-imports --allow-all ./test/Host.ts"
     },
     "browserslist": [
         "last 1 chrome version",
         "last 1 firefox version"
     ],
     "devDependencies": {
+        "@danielx/civet": "^0.10.1",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.0",
         "@sass-fairy/list": "^1.2.4",

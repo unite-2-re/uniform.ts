@@ -25,7 +25,7 @@ export const workerAction = async ()=>{
 
     // (sending as argument, unusual here)
     const bravery = new ArrayBuffer(64);
-    await (transferCheck?.(utils.transfer(ctx, bravery)));
+    await (transferCheck?.(await utils.transfer(ctx, bravery)));
 
     // should to be detached
     console.warn(bravery);

@@ -23,7 +23,7 @@ export default class SharedChannel<T extends unknown> {
     #byteOffset: number = 0;
     $binCoder: any = null;
 
-    
+
     constructor(sharedBuffer: SharedArrayBuffer | null, byteOffset = 0, binCoder: any = null) {
         this.#sharedBuffer = sharedBuffer;
         this.#byteOffset = byteOffset;
@@ -91,7 +91,7 @@ export default class SharedChannel<T extends unknown> {
             // @ts-ignore
             return promise?.then?.(()=>{
                 if (this.#sharedBuffer) {
-                    
+
                     return new Uint8Array(this.#sharedBuffer, this.#byteOffset + 8, int32[1]);
                 }
                 return null;
@@ -107,7 +107,7 @@ export default class SharedChannel<T extends unknown> {
         const int32  = new Int32Array(this.#sharedBuffer, this.#byteOffset, 2);
         const result = AT.wait(int32, 0, 1, timeout);
         if (result == "ok") {
-            
+
             return new Uint8Array(this.#sharedBuffer, this.#byteOffset + 8, int32[1]);
         }
         return null;
@@ -122,9 +122,9 @@ export const doOnlyAfterResolve = <T extends unknown|any>(meta: MPromise<T>, cb:
         return chain;
     }
 
-    /*@__MANGLE_PROP__*/ /*@__PURE__*/ 
+    /*@__MANGLE_PROP__*/ /*@__PURE__*/
     if (typeof SharedChannel != TS.udf && meta instanceof SharedChannel) {
-        /*@__MANGLE_PROP__*/ /*@__PURE__*/ 
+        /*@__MANGLE_PROP__*/ /*@__PURE__*/
         return /*@__MANGLE_PROP__*/ /*@__PURE__*/  doOnlyAfterResolve((meta as SharedChannel<T>)?.waitAuto?.() as T, cb);
     }
 
@@ -132,7 +132,7 @@ export const doOnlyAfterResolve = <T extends unknown|any>(meta: MPromise<T>, cb:
     return cb(meta as T);
 }
 
-/*@__MANGLE_PROP__*/ /*@__PURE_*/ 
+/*@__MANGLE_PROP__*/ /*@__PURE_*/
 SharedChannel.prototype.waitAsync = function (timeout = 1000): unknown {
     const result = /*@__MANGLE_PROP__*/ this.$promised(timeout);
     return doOnlyAfterResolve(result, (bin: unknown|Uint8Array)=>{

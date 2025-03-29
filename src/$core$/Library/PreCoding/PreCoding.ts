@@ -9,13 +9,13 @@ import { wrapMeta } from "../Handlers/UniversalHandler";
 import ORG from "../Utils/OrganicType";
 import { PMS, TS } from "../Utils/Alias";
 
-/*@__MANGLE_PROP__*/ /*@__PURE__*/ 
+/*@__MANGLE_PROP__*/ /*@__PURE__*/
 export const hasMemoryBuffer = (target: any)=>{
     // shared array buffer are not transfer, it's sharing
     return ((target as any)?.buffer instanceof ArrayBuffer) || (typeof SharedArrayBuffer != TS.udf && (target as any)?.buffer instanceof SharedArrayBuffer);
 }
 
-/*@__MANGLE_PROP__*/ /*@__PURE__*/ 
+/*@__MANGLE_PROP__*/ /*@__PURE__*/
 export default class PreCoding {
     /*@__MANGLE_PROP__*/ $encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
     /*@__MANGLE_PROP__*/ $decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
@@ -25,10 +25,10 @@ export default class PreCoding {
 
     //
     constructor(memoryPool = new UUIDMap()) {
-        /*@__MANGLE_PROP__*/ 
+        /*@__MANGLE_PROP__*/
         this.$mp = memoryPool;
 
-        /*@__MANGLE_PROP__*/ 
+        /*@__MANGLE_PROP__*/
         this.$encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown> ([
             ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
                 if (!organic) {
@@ -126,7 +126,7 @@ export default class PreCoding {
             }]
         ]);
 
-        /*@__MANGLE_PROP__*/ 
+        /*@__MANGLE_PROP__*/
         this.$decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>boolean>([
             ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
                 if (!organic) {

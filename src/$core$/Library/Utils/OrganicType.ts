@@ -6,6 +6,7 @@
     node = "!#node#!",
     payload = "!#payload#!",
     index = "!#index#!",
+    dispose = "!#dispose#!",
     exc = "!#exc#!"
 }
 
@@ -14,7 +15,7 @@
 /*@__MANGLE_PROP__*/ const $data$ = /*@__MANGLE_PROP__*/ Symbol("@data");
 /*@__MANGLE_PROP__*/ const $sync$ = /*@__MANGLE_PROP__*/ Symbol("@sync");
 
-/*@__MANGLE_PROP__*/ 
+/*@__MANGLE_PROP__*/
 export const ORG = {
     /*@__MANGLE_PROP__*/ sync: $sync$,
     /*@__MANGLE_PROP__*/ exc: $exc$,
@@ -23,7 +24,8 @@ export const ORG = {
     uuid: $ORG.uuid,
     node: $ORG.node,
     payload: $ORG.payload,
-    index: $ORG.index
+    index: $ORG.index,
+    dispose: $ORG.dispose
 }
 
 /*@__PURE__*/ export interface IMeta {
@@ -38,7 +40,7 @@ export const ORG = {
 /*@__MANGLE_PROP__*/ /*@__PURE__*/ export default ORG;
 /*@__MANGLE_PROP__*/ /*@__PURE__*/ export const $bindings$ = /*@__MANGLE_PROP__*/ new WeakMap<any, any>();
 /*@__MANGLE_PROP__*/ /*@__PURE__*/ export const bindWithContext = (context: any, obj: any) => {
-    try { context[ORG.exc] = obj; } catch(e: any) { console.warn(e); };
+    try { context[ORG.exc] = obj; } catch(e: any) {};
     /*@__MANGLE_PROP__*/ /*@__PURE__*/ $bindings$.set(context, obj);
     return obj;
 }

@@ -106,13 +106,13 @@ export default class FLOW {
         return this.#imports;
     }
 
-    /*@__MANGLE_PROP__*/ 
+    /*@__MANGLE_PROP__*/
     importToSelf(module: any) {
         Object.assign(this.#imports, (module)?.default ?? module);
         return this;
     }
 
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/ 
+    /*@__PURE__*/ /*@__MANGLE_PROP__*/
     importToUnit(source: string, sync = false) {
         // @ts-ignore ""
         /*@__PURE__*/ const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
@@ -128,7 +128,7 @@ export default class FLOW {
         return pair?.[1];
     }
 
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/ 
+    /*@__PURE__*/ /*@__MANGLE_PROP__*/
     sync(sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
@@ -143,7 +143,7 @@ export default class FLOW {
         return pair?.[1];
     }
 
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/ 
+    /*@__PURE__*/ /*@__MANGLE_PROP__*/
     callTask($args: any[] = [], transfer: unknown[] = [], sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();

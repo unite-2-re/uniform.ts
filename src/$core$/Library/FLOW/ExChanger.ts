@@ -141,8 +141,8 @@ export default class ExChanger {
             //
             if (this.#handler) {
                 return new Proxy(MakeReference({
-                    [ORG.type]: "tf", 
-                    [ORG.uuid]: uuid, 
+                    [ORG.type]: "tf",
+                    [ORG.uuid]: uuid,
                     [ORG.node]: real
                 }), new ObjectProxy(this.#handler));
             }
@@ -150,13 +150,13 @@ export default class ExChanger {
             //
             return null;
         });
-        
+
     }
 
     // transfer from remote to host, or transfer actively (default is getter, setter/sender when has node argument)
     doTransfer<T extends unknown>($name: string|IMeta|IWrap<IMeta> = "", node: T | null = null): IWrap<T>|null {
         return this.$act<any>($name, (name: any): IWrap<T>|null => {
-            return this.$act(node, (result: any): IWrap<T>|null =>{
+            return this.$act(node, (result: any): IWrap<T>|null => {
 
                 // @ts-ignore "sometimes, may got new UUID, or exists"
                 const esm: IMeta = (extract(name) as IMeta);
@@ -177,8 +177,8 @@ export default class ExChanger {
 
                 // active transfer as argument to remote
                 result = (real != null ? this.$request("access", {
-                    [ORG.type]: "tf", 
-                    [ORG.uuid]: uuid, 
+                    [ORG.type]: "tf",
+                    [ORG.uuid]: uuid,
                     [ORG.node]: real
                 }, []) : this.$request("transfer", (esm ?? {
                     [ORG.type]: "ref",

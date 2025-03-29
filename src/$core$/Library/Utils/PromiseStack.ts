@@ -18,7 +18,7 @@ export default class PromiseStack<T extends unknown> {
     get(name = "") { return this.#map.get(name); }
 
     // reject by UUID
-    /*@__MANGLE_PROP__*/ 
+    /*@__MANGLE_PROP__*/
     [TS.rjb](name: string, why: unknown) {
         const pm = this.#map.get(name);
         this.#map.delete(name);
@@ -28,7 +28,7 @@ export default class PromiseStack<T extends unknown> {
     }
 
     // resolve by UUID
-    /*@__MANGLE_PROP__*/ 
+    /*@__MANGLE_PROP__*/
     [TS.rvb](name: string, why: unknown) {
         const pm = this.#map.get(name);
         this.#map.delete(name);
@@ -43,7 +43,7 @@ export default class PromiseStack<T extends unknown> {
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{ 
+        /*@__MANGLE_PROP__*/ setTimeout(()=>{
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);
@@ -62,7 +62,7 @@ export default class PromiseStack<T extends unknown> {
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{ 
+        /*@__MANGLE_PROP__*/ setTimeout(()=>{
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);

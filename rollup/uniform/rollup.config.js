@@ -1,5 +1,3 @@
-
-
 import {resolve} from "node:path";
 import terserOptions from "../shared.config"
 import terser from '@rollup/plugin-terser';
@@ -7,6 +5,7 @@ import typescript from '@rollup/plugin-typescript';
 import { compression } from 'vite-plugin-compression2';
 import optimizer from 'vite-plugin-optimizer';
 import createExternal from "vite-plugin-external";
+import civetVitePlugin from '@danielx/civet/vite'
 
 //
 export const __dirname = resolve(import.meta.dirname, "../../");
@@ -40,6 +39,9 @@ export const TSConfig = {
 
 //
 export const plugins = [
+    civetVitePlugin({
+      // options
+    }),
     typescript(TSConfig),
     terser(terserOptions),
     optimizer({}),
@@ -83,4 +85,5 @@ export const rollupOptions = {
 	}
 };
 
+//
 export default rollupOptions;

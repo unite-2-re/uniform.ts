@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any ban-types
- import { PMS, TS } from "./Alias";
- import ORG, { $bindings$, type $ORG } from "./OrganicType";
+import { PMS, TS } from "./Alias";
+import ORG, { $bindings$, type $ORG } from "./OrganicType";
 
 
 /*@__MANGLE_PROP__*/ export const UUIDv4 = () => {
@@ -29,7 +29,7 @@
 
 // If someone not in list, will just copy or sharing
 // @ts-ignore "Transferable list for web workers (automatic)"
-/*@__MANGLE_PROP__*/ /*@__PURE__*/ 
+/*@__MANGLE_PROP__*/ /*@__PURE__*/
 export const Transferable = [
     /* @ts-ignore "" */ /*@__MANGLE_PROP__*/ /*@__PURE__*/ typeof ArrayBuffer               != TS.udf ? ArrayBuffer               : null,
     /* @ts-ignore "" */ /*@__MANGLE_PROP__*/ /*@__PURE__*/ typeof MessagePort               != TS.udf ? MessagePort               : null,
@@ -57,13 +57,13 @@ export const Transferable = [
                 if (prop == ORG.exc) { return target; };
                 if ( // forbidden actions
                     isSymbol(prop) ||
-                    FORBIDDEN_KEYS.has(prop as string) || 
+                    FORBIDDEN_KEYS.has(prop as string) ||
                     META_KEYS?.has?.(prop as any)
                 ) { return null; };
                 return target?.access?.(prop);
             },
             set(target: ExChanger, prop: string, value: any): any {
-                return target?.register?.(value, prop);
+                target?.register?.(value, prop); return true;
             }
         });
     }

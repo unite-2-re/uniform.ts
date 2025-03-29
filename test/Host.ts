@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
+//import moduleLoader, {doTransfer, getContext, sync} from "../src/$main$/index";
 import moduleLoader, {doTransfer, getContext, sync} from "../dist/uniform.js";
 //import moduleLoader, {doTransfer, getContext, sync} from "../dist-wp/main.mjs";
 
@@ -8,7 +9,7 @@ const ctx = getContext(module);
 if (!ctx) throw new Error("Invalid context or worker...");
 
 //
-const transferCheck = (ab: any)=>{ console.log(ab); };
+const transferCheck = (ab: any)=>{ try { console.log(ab); } catch(e) {}; return ab; };
 const hostAction = async ()=>{
     // @ts-ignore ""
     const TestClass: any = module.TestClass;

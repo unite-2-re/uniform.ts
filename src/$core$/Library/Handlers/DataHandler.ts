@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any 
+// deno-lint-ignore-file no-explicit-any
 import { FORBIDDEN_KEYS, META_KEYS, isSymbol } from "../Utils/Useful";
 import { extract } from "../Utils/InstructionType";
 import { type IMeta, ORG } from "../Utils/OrganicType";
@@ -22,7 +22,7 @@ export default class DataHandler {
             if (args[0] == ORG.exc) { return this.$exc ?? ref?.[ORG.exc] ?? ref?.then?.((e: any)=>e?.[ORG.exc]) ?? null; };
             if ( // forbidden actions
                 isSymbol(args?.[0]) ||
-                FORBIDDEN_KEYS.has(args?.[0] as string) || 
+                FORBIDDEN_KEYS.has(args?.[0] as string) ||
                 META_KEYS.has?.(args?.[0] as any)
             ) { return null; };
         }
@@ -36,8 +36,8 @@ export default class DataHandler {
             // sometimes, `@uuid` may already is known from memory pool
             const wrap = extract(meta) as IMeta;
             return {
-                [ORG.type]: "tf", 
-                [ORG.node]: ref, 
+                [ORG.type]: "tf",
+                [ORG.node]: ref,
                 [ORG.uuid]: (wrap as any)?.[ORG.uuid] ?? ""
             };
         };

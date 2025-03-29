@@ -5,7 +5,7 @@ import { ORG, isPromise } from "../Utils/Useful";
 
 //
 export default class TypeDetector {
-    
+
     /*@__MANGLE_PROP__*/ detection: Map<string, (d: unknown)=>boolean> = new Map<string, (d: unknown)=>boolean>();
 
     // we working only with unwrapped data, we doesn't accept any promise directly
@@ -23,20 +23,20 @@ export default class TypeDetector {
 
             //
             ["a", (a: unknown): boolean=>{
-                /*@__MANGLE_PROP__*/ 
+                /*@__MANGLE_PROP__*/
                 return Array.isArray(a);
             }],
 
             //
             ["ab", (a: unknown): boolean=>{
-                /*@__MANGLE_PROP__*/ 
+                /*@__MANGLE_PROP__*/
                 return (a instanceof ArrayBuffer || (typeof SharedArrayBuffer != TS.udf && a instanceof SharedArrayBuffer));
             }],
 
             //
             ["ta", (a: unknown): boolean=>{
                 const $buffer: unknown = (a as any)?.buffer;
-                /*@__MANGLE_PROP__*/ 
+                /*@__MANGLE_PROP__*/
                 return ($buffer instanceof ArrayBuffer || (typeof SharedArrayBuffer != TS.udf && $buffer instanceof SharedArrayBuffer));
             }],
 

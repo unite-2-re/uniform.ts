@@ -13,7 +13,7 @@ export default {
     server: {
         port: 5173,
         open: false,
-        origin: "http://localhost:5173",
+        origin: "/",
     },
     build: {
         chunkSizeWarningLimit: 1600,
