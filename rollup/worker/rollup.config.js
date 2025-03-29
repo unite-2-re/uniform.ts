@@ -40,9 +40,11 @@ export const TSConfig = {
 //
 export const plugins = [
     civetVitePlugin({
-      // options
+        ts: 'tsc',
+        emitDeclaration: true,
+        typecheck: false,
     }),
-    typescript(TSConfig),
+    //typescript(TSConfig),
     terser(terserOptions),
     optimizer({}),
     compression(),
@@ -65,7 +67,7 @@ export const rollupOptions = {
         "externals", "/externals", "./externals",
         "dist", "/dist", "./dist"
     ],
-    input: "./src/Workers/ModuleWorker.ts",
+    input: "./src/Workers/ModuleWorker.civet",
     output: {
         //preserveModules: true,
         minifyInternalExports: true,

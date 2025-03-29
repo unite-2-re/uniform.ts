@@ -24,7 +24,7 @@ export default {
         name: NAME,
         lib: {
             formats: ["es"],
-            entry: resolve(__dirname, './src/main/index.ts'),
+            entry: resolve(__dirname, './src/main/index.civet'),
             name: NAME,
             fileName: NAME,
         },
@@ -47,8 +47,8 @@ export default {
             "./test/*.ts"
         ],
         entries: [
-            resolve(__dirname, './src/$worker$/index.ts'),
-            resolve(__dirname, './src/$main$/index.ts')
+            resolve(__dirname, './src/$worker$/index.civet'),
+            resolve(__dirname, './src/$main$/index.civet')
         ],
         force: true
     }

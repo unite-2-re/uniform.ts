@@ -9,6 +9,8 @@
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "allowJs": true,
+        "jsx": "preserve",
+        "isolatedModules": true,
         "allowArbitraryExtensions": true,
         "allowSyntheticDefaultImports": true,
         "allowUmdGlobalAccess": true,
@@ -20,9 +22,9 @@
         "inlineSources": true,
         "inlineSourceMap": true,
         "sourceMap": false,
-        //"allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": true,
         //"emitDeclarationOnly": true,
-        //"noEmit": true,
+        "noEmit": true,
         "typeRoots": ["plugins/global.d.ts"]
     }
 }
