@@ -5,12 +5,20 @@ export const makeModuleLoader = (exChanger: any, altName: string = "!!import!!")
     // make import loader support
     const $import$ = (src: string = ""): Promise<any> => {
         return import(src)?.then(async ($m)=>{
-            const { wrapExChanger, transfer, doTransfer } = await import("../Library/Utils/Useful");
+            const module = await import("../Library/Utils/Useful");
+            const { wrapExChanger, transfer, doTransfer } = module;
             if (typeof $m == "object" || typeof $m == "function") { bindWithContext($m, exChanger); };
             if (typeof $m?.$importContext$ == "function") { $m?.$importContext$?.({
                 ctx: wrapExChanger(exChanger),
                 utils: {transfer, doTransfer}
-            }); }
+            }); } else {
+                const ctx = wrapExChanger(exChanger);
+                $m?.$importContext$?.resolve?.(ctx);
+                $m?.$importUtils$?.resolve?.({
+                    transfer: transfer?.bind?.(module, ctx),
+                    doTransfer: doTransfer?.bind?.(module, ctx),
+                });
+            }
             return $m;
         });
     };

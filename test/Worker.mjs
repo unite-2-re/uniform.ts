@@ -1,6 +1,8 @@
 //
 let ctx = {}, utils = {};
-export const $importContext$ = (U)=>({ctx, utils} = U);
+//export const $importContext$ = (U)=>({ctx, utils} = U);
+export const $importContext$ = Promise.withResolvers();
+export const $importUtils$ = Promise.withResolvers();
 
 // after sync you can register
 export class TestClass {
@@ -20,12 +22,14 @@ export class TestClass {
 // after, prefers sync with receiver
 export const regrets = new ArrayBuffer(64);
 export const workerAction = async ()=>{
-    //
-    const transferCheck = await ctx?.["transferCheck"]; //as ((_: ArrayBuffer|unknown)=>unknown)|null;
+    const {transferCheck} = await $importContext$.promise;
+    const {transfer} = await $importUtils$.promise;
 
     // (sending as argument, unusual here)
     const bravery = new ArrayBuffer(64);
-    await (transferCheck?.(await utils.transfer(ctx, bravery)));
+
+    //\
+    await (transferCheck?.(await transfer(bravery)));
 
     // should to be detached
     console.warn(bravery);
