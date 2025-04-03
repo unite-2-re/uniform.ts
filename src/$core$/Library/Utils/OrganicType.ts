@@ -1,30 +1,30 @@
 // deno-lint-ignore-file no-explicit-any
 
 /*@__PURE__*/ export enum $ORG {
-    type = "!#type#!",
-    uuid = "!#uuid#!",
-    node = "!#node#!",
+    exc     = "!#exc#!",
+    type    = "!#type#!",
+    uuid    = "!#uuid#!",
+    node    = "!#node#!",
+    index   = "!#index#!",
     payload = "!#payload#!",
-    index = "!#index#!",
-    dispose = "!#dispose#!",
-    exc = "!#exc#!"
+    dispose = "!#dispose#!"
 }
 
 //
-/*@__MANGLE_PROP__*/ const $exc$  = /*@__MANGLE_PROP__*/ Symbol("@exc");
-/*@__MANGLE_PROP__*/ const $data$ = /*@__MANGLE_PROP__*/ Symbol("@data");
-/*@__MANGLE_PROP__*/ const $sync$ = /*@__MANGLE_PROP__*/ Symbol("@sync");
+/*@__MANGLE_PROP__*/ const $exc$  = /*@__MANGLE_PROP__*/ Symbol.for("$@exc@$");
+/*@__MANGLE_PROP__*/ const $data$ = /*@__MANGLE_PROP__*/ Symbol.for("$@data@$");
+/*@__MANGLE_PROP__*/ const $sync$ = /*@__MANGLE_PROP__*/ Symbol.for("$@sync@$");
 
 /*@__MANGLE_PROP__*/
 export const ORG = {
-    /*@__MANGLE_PROP__*/ sync: $sync$,
-    /*@__MANGLE_PROP__*/ exc: $exc$,
+    exc: $exc$,
+    sync: $sync$,
     data: $data$,
     type: $ORG.type,
     uuid: $ORG.uuid,
     node: $ORG.node,
-    payload: $ORG.payload,
     index: $ORG.index,
+    payload: $ORG.payload,
     dispose: $ORG.dispose
 }
 
