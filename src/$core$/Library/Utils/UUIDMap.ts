@@ -3,22 +3,22 @@ import { ORG, UUIDv4, type dT, type rT } from "./Useful";
 const rg = "register";
 
 //
-const deref = (obj)=>{
+const deref = (obj) => {
     return (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
 }
 
 // TODO: planned promised...
-export default class UUIDMap<T=dT> {
-    #weakMap  = new WeakMap<dT, string>();
-    #refMap   = new Map<string, rT>();
-    #registry = new FinalizationRegistry<string>((_: string) => {});
-    #linked   = new Map<dT, number>();
+export default class UUIDMap<T = dT> {
+    #weakMap = new WeakMap<dT, string>();
+    #refMap = new Map<string, rT>();
+    #registry = new FinalizationRegistry<string>((_: string) => { });
+    #linked = new Map<dT, number>();
 
     //
     constructor() {
-        this.#linked   = new Map<dT, number>();
-        this.#weakMap  = new WeakMap<dT, string>();
-        this.#refMap   = new Map<string, rT>();
+        this.#linked = new Map<dT, number>();
+        this.#weakMap = new WeakMap<dT, string>();
+        this.#refMap = new Map<string, rT>();
         this.#registry = new FinalizationRegistry<string>((key: string) => {
             this.#refMap.delete(key);
         });
@@ -51,22 +51,22 @@ export default class UUIDMap<T=dT> {
     }
 
     //
-    discount(obj?: rT): dT|undefined {
+    discount(obj?: rT): dT | undefined {
         obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
         obj = (typeof obj == "object" || typeof obj == "function") ? obj : this.#refMap.get(<string>(<unknown>obj));
         obj = (obj instanceof WeakRef ? obj?.deref?.() : obj) as any;
         if (!obj) return obj;
         const hold = this.#linked?.get?.(obj) || 0;
-        if (hold <= 1) { this.#linked.delete(obj); } else { this.#linked.set(obj, hold-1); }
+        if (hold <= 1) { this.#linked.delete(obj); } else { this.#linked.set(obj, hold - 1); }
         return obj;
     }
 
     //
-    count(obj?: dT): dT|undefined {
+    count(obj?: dT): dT | undefined {
         obj = obj instanceof WeakRef ? obj?.deref?.() : obj;
         if (!obj || obj?.[ORG.data]) return obj;
         const hold = this.#linked.get(obj);
-        if (!hold) { this.#linked.set(obj, 1); } else { this.#linked.set(obj, hold+1); }
+        if (!hold) { this.#linked.set(obj, 1); } else { this.#linked.set(obj, hold + 1); }
         return obj;
     }
 

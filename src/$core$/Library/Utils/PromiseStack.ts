@@ -12,7 +12,7 @@ export default class PromiseStack<T extends unknown> {
 
     //
     get sync() { return this.#syncExcept(); }
-    #syncExcept(ne = "") { return PMS.allSettled(Array.from(this.#map?.entries?.())?.filter?.(([n])=>(ne!=n))?.map?.((([,v])=>v))); }
+    #syncExcept(ne = "") { return PMS.allSettled(Array.from(this.#map?.entries?.())?.filter?.(([n]) => (ne != n))?.map?.((([, v]) => v))); }
 
     //
     get(name = "") { return this.#map.get(name); }
@@ -36,12 +36,12 @@ export default class PromiseStack<T extends unknown> {
     }
 
 
-    hook<T extends unknown>(key: string | null = null, buffer: SharedArrayBuffer | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
+    hook<T extends unknown>(key: string | null = null, buffer: SharedArrayBuffer | null = null): [string, SharedChannel<T>, SharedArrayBuffer | ArrayBuffer | unknown] {
         const pm = new SharedChannel(buffer);
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        setTimeout(()=>{
+        setTimeout(() => {
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);
@@ -54,13 +54,13 @@ export default class PromiseStack<T extends unknown> {
     //  :0 - for sending UUID or identify
     //  :1 - for waiting or async ops
     // ]
-    [TS.cs]<T extends unknown>(key: string | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
+    [TS.cs]<T extends unknown>(key: string | null = null): [string, SharedChannel<T>, SharedArrayBuffer | ArrayBuffer | unknown] {
         const bf = new SharedArrayBuffer(16);
         const pm = new SharedChannel(bf);
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        setTimeout(()=>{
+        setTimeout(() => {
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);
@@ -79,7 +79,7 @@ export default class PromiseStack<T extends unknown> {
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        setTimeout(()=>{
+        setTimeout(() => {
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);

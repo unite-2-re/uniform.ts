@@ -12,7 +12,7 @@ import { type MPromise, isPromise } from "./Useful";
  * 8...N byte: data payload
  */
 
-const AT: Atomics|any = typeof Atomics != TS.udf ? Atomics : {};
+const AT: Atomics | any = typeof Atomics != TS.udf ? Atomics : {};
 
 export default class SharedChannel<T extends unknown> {
     //[x: string]: (timeout?: number) => unknown; // @ts-ignore
@@ -28,7 +28,7 @@ export default class SharedChannel<T extends unknown> {
     }
 
     //
-    [TS.rv](object: T|Uint8Array|unknown = {}) {
+    [TS.rv](object: T | Uint8Array | unknown = {}) {
         // @ts-ignore "no valid type"
         return this.$resolveWith(this.$binCoder?.encode?.(object ?? {}) ?? new Uint8Array([]));
     }
@@ -47,9 +47,9 @@ export default class SharedChannel<T extends unknown> {
     $resolveWith(binaryData: Uint8Array | Uint8ClampedArray | Int8Array): any {
         if (this.#sharedBuffer) {
             // grow when is possible...
-            if ((this.#sharedBuffer.byteLength-this.#byteOffset) < (binaryData.byteLength+8)) {
+            if ((this.#sharedBuffer.byteLength - this.#byteOffset) < (binaryData.byteLength + 8)) {
                 // @ts-ignore
-                this.#sharedBuffer?.grow?.(this.#byteOffset + binaryData.byteLength+8);
+                this.#sharedBuffer?.grow?.(this.#byteOffset + binaryData.byteLength + 8);
             }
 
             //
@@ -77,13 +77,13 @@ export default class SharedChannel<T extends unknown> {
 
     $promised(timeout = 1000) {
         if (!this.#sharedBuffer) return; //
-        const int32   = new Int32Array(this.#sharedBuffer, this.#byteOffset, 2);
+        const int32 = new Int32Array(this.#sharedBuffer, this.#byteOffset, 2);
         const promise = AT.waitAsync(int32, 0, 1, timeout)?.value;
 
         // @ts-ignore
         if (promise.async) {
             // @ts-ignore
-            return promise?.then?.(()=>{
+            return promise?.then?.(() => {
                 if (this.#sharedBuffer) {
 
                     return new Uint8Array(this.#sharedBuffer, this.#byteOffset + 8, int32[1]);
@@ -93,12 +93,12 @@ export default class SharedChannel<T extends unknown> {
         }
 
         //
-        return new PMS((_: any, rj: (arg0: any) => any)=>rj(promise));
+        return new PMS((_: any, rj: (arg0: any) => any) => rj(promise));
     }
 
     $waitSync(timeout = 1000) {
         if (!this.#sharedBuffer) return; //
-        const int32  = new Int32Array(this.#sharedBuffer, this.#byteOffset, 2);
+        const int32 = new Int32Array(this.#sharedBuffer, this.#byteOffset, 2);
         const result = AT.wait(int32, 0, 1, timeout);
         if (result == "ok") {
 
@@ -108,7 +108,7 @@ export default class SharedChannel<T extends unknown> {
     }
 }
 
-export const doOnlyAfterResolve = <T extends unknown|any>(meta: MPromise<T>, cb: (u: T)=>MPromise<T>|null|void): MPromise<any>|null|void => {
+export const doOnlyAfterResolve = <T extends unknown | any>(meta: MPromise<T>, cb: (u: T) => MPromise<T> | null | void): MPromise<any> | null | void => {
     if (isPromise(meta)) {
         const chain = (meta as any)?.then?.(cb)?.catch?.(console.trace.bind(console)) ?? cb(meta as T);
         //console.trace(chain);
@@ -125,7 +125,7 @@ export const doOnlyAfterResolve = <T extends unknown|any>(meta: MPromise<T>, cb:
 
 SharedChannel.prototype.waitAsync = function (timeout = 1000): unknown {
     const result = this.$promised(timeout);
-    return doOnlyAfterResolve(result, (bin: unknown|Uint8Array)=>{
+    return doOnlyAfterResolve(result, (bin: unknown | Uint8Array) => {
         return bin ? this.$binCoder?.decode?.(bin as Uint8Array) : null;
     });
 }

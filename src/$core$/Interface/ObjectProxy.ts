@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any ban-types no-explicit-any
-export default class ObjectProxy<T extends object|Function> implements ProxyHandler<T> {
+export default class ObjectProxy<T extends object | Function> implements ProxyHandler<T> {
     #handlerUtils: any = {};
 
     //
@@ -47,4 +47,3 @@ export default class ObjectProxy<T extends object|Function> implements ProxyHand
         return this.#handlerUtils.$hnd("deleteProperty", target, ...args);
     }
 }
-

@@ -18,86 +18,86 @@ export default class FLOW {
         this.#imports = {};
 
         //
-        (worker ??= this.#worker)?.addEventListener("message", (ev: any)=>{
+        (worker ??= this.#worker)?.addEventListener("message", (ev: any) => {
             if (!ev?.data) { console.log(ev); return; }
-            const {cmd, uuid, dir, status, shared} = ev.data;
+            const { cmd, uuid, dir, status, shared } = ev.data;
             if (dir == "req") {
                 if (cmd == "ping") {
                     worker?.[PM]?.({ cmd, uuid, dir: "res", status: "ok", result: "ok", shared: null });
                 } else
-                if (cmd == "import") {
-                    import(/* @vite-ignore */ ("" + ev.data.source))?.then?.((m)=>{
-                        Object.assign(this.#imports, (m.default ?? m));
-                        worker?.[PM]?.({ cmd, uuid, dir: "res", status: "ok", result: "ok", shared: null });
-                    })?.catch?.((e)=>{
-                        console.error(e);
-                        console.trace(e);
-                        worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unsupported", shared: null });
-                    });
-                } else
-                if (cmd == "call") {
-                    // hoot shared channels for direct answer
-                    /*@__PURE__*/ (shared ? this.#promiseStack?.hook?.(uuid, shared) : null);
-
-                    // call with FLOW "this" context
-                    try {
-                        doOnlyAfterResolve(this.#imports[ev.data.handler]?.apply?.(self, [ev.data]) ?? ev.data.args, (syncOrAsync)=>{
-                            doOnlyAfterResolve(syncOrAsync, (pass)=>{
-                                const [$r, transfer] = pass;
-                                doOnlyAfterResolve($r, (result)=>{
-                                    worker?.[PM]?.({
-                                        handler: "$resolver",
-                                        status: "ok",
-                                        cmd,
-                                        uuid,
-                                        dir: "res",
-                                        result,
-                                        shared
-                                    }, [...new Set(Array.from(transfer||[]))].filter((e)=>Transferable.some((I)=>e instanceof I)) as StructuredSerializeOptions);
-
-                                    // resolve when sync supported
-                                    // @ts-ignore ""
-                                    this.#promiseStack?.[TS.rvb]?.(uuid, result);
-                                });
-                            });
+                    if (cmd == "import") {
+                        import(/* @vite-ignore */("" + ev.data.source))?.then?.((m) => {
+                            Object.assign(this.#imports, (m.default ?? m));
+                            worker?.[PM]?.({ cmd, uuid, dir: "res", status: "ok", result: "ok", shared: null });
+                        })?.catch?.((e) => {
+                            console.error(e);
+                            console.trace(e);
+                            worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unsupported", shared: null });
                         });
-                    } catch(e: any) {
+                    } else
+                        if (cmd == "call") {
+                            // hook shared channels for direct answer
+                            (shared ? this.#promiseStack?.hook?.(uuid, shared) : null);
+
+                            // call with FLOW "this" context
+                            try {
+                                doOnlyAfterResolve(this.#imports[ev.data.handler]?.apply?.(self, [ev.data]) ?? ev.data.args, (syncOrAsync) => {
+                                    doOnlyAfterResolve(syncOrAsync, (pass) => {
+                                        const [$r, transfer] = pass;
+                                        doOnlyAfterResolve($r, (result) => {
+                                            worker?.[PM]?.({
+                                                handler: "$resolver",
+                                                status: "ok",
+                                                cmd,
+                                                uuid,
+                                                dir: "res",
+                                                result,
+                                                shared
+                                            }, [...new Set(Array.from(transfer || []))].filter((e) => Transferable.some((I) => e instanceof I)) as StructuredSerializeOptions);
+
+                                            // resolve when sync supported
+                                            // @ts-ignore ""
+                                            this.#promiseStack?.[TS.rvb]?.(uuid, result);
+                                        });
+                                    });
+                                });
+                            } catch (e: any) {
+                                console.error(e);
+                                console.trace(e);
+
+                                //
+                                const reason = e.message;
+                                worker?.[PM]?.({
+                                    handler: "$resolver",
+                                    status: "error",
+                                    cmd,
+                                    uuid,
+                                    dir: "res",
+                                    result: reason,
+                                    shared: null
+                                }, []);
+
+                                // resolve when sync supported
+                                // @ts-ignore ""
+                                this.#promiseStack?.[TS.rjb]?.(uuid, reason);
+                            }
+                        } else {
+                            console.error("Internal command: " + cmd + " not supported.");
+                            worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unk" });
+                        }
+            } else
+                if (dir == "res") {
+                    try {
+                        const resolved = this.#imports?.[ev.data.handler]?.apply?.(self, [ev.data]) ?? (ev.data.result) ?? null;
+                        // @ts-ignore ""
+                        this.#promiseStack?.[status != "error" ? TS.rvb : TS.rjb]?.(uuid, resolved ?? null);
+                    } catch (e: any) {
                         console.error(e);
                         console.trace(e);
-
-                        //
-                        const reason = e.message;
-                        worker?.[PM]?.({
-                            handler: "$resolver",
-                            status: "error",
-                            cmd,
-                            uuid,
-                            dir: "res",
-                            result: reason,
-                            shared: null
-                        }, []);
-
-                        // resolve when sync supported
                         // @ts-ignore ""
-                        this.#promiseStack?.[TS.rjb]?.(uuid, reason);
+                        this.#promiseStack?.[TS.rjb]?.(uuid, e?.message);
                     }
-                } else {
-                    console.error("Internal command: " + cmd + " not supported.");
-                    worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unk" });
                 }
-            } else
-            if (dir == "res") {
-                try {
-                    const resolved = this.#imports?.[ev.data.handler]?.apply?.(self, [ev.data]) ?? (ev.data.result) ?? null;
-                    // @ts-ignore ""
-                    this.#promiseStack?.[status != "error" ? TS.rvb : TS.rjb]?.(uuid, resolved ?? null);
-                } catch(e: any) {
-                    console.error(e);
-                    console.trace(e);
-                    // @ts-ignore ""
-                    this.#promiseStack?.[TS.rjb]?.(uuid, e?.message);
-                }
-            }
         });
     }
 
@@ -110,7 +110,7 @@ export default class FLOW {
         Object.assign(this.#imports, (module)?.default ?? module);
         return this;
     }
-    
+
     importToUnit(source: string, sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
@@ -143,7 +143,7 @@ export default class FLOW {
     callTask($args: any[] = [], transfer: unknown[] = [], sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
-        doOnlyAfterResolve($args, (args)=>{
+        doOnlyAfterResolve($args, (args) => {
             this.#worker?.[PM]?.({
                 status: "pending",
                 handler: "$handler",
@@ -152,7 +152,7 @@ export default class FLOW {
                 uuid: pair?.[0] || "",
                 shared: pair?.[2],
                 args
-            }, [...new Set(transfer||[])] as StructuredSerializeOptions);
+            }, [...new Set(transfer || [])] as StructuredSerializeOptions);
         });
         return pair?.[1];
     }

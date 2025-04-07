@@ -9,8 +9,8 @@ export const $dh = $cd.$hndr;
 
 //
 export const $resolver = (command: any) => (command.result);
-export const $handler  = (command: any) => {
-    const {args: [cmd, target, ...args]} = command;
+export const $handler = (command: any) => {
+    const { args: [cmd, target, ...args] } = command;
 
     //
     const transfer: unknown[] = [];
@@ -18,9 +18,9 @@ export const $handler  = (command: any) => {
     if (cmd == "dispose") { $mp.discount(target?.[ORG.uuid] || target); };
 
     // before you needs decode its
-    return doOnlyAfterResolve($cd.decode([cmd, target, ...args], transfer), ([cmd, target, ...args])=>{
+    return doOnlyAfterResolve($cd.decode([cmd, target, ...args], transfer), ([cmd, target, ...args]) => {
         const result = $dh?.$getHandler?.("pms")?.$hnd?.(cmd, target, ...args);
-        const ready  = $cd.encode(result, transfer);
+        const ready = $cd.encode(result, transfer);
         return [ready, transfer] // also, needs to recode back
     });
 }

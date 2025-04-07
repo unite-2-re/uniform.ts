@@ -5,4 +5,4 @@ import exChanger from "../$core$/Workers/ExChangerUnit";
 import makeModuleLoader from "../$core$/Workers/MakeLoader";
 export const moduleLoader = wrapExChanger(makeModuleLoader(exChanger));
 export default moduleLoader;
-export {exChanger, wrapExChanger};
+export { exChanger, wrapExChanger };

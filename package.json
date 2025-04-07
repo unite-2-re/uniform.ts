@@ -19,10 +19,8 @@
         "last 1 firefox version"
     ],
     "devDependencies": {
-        "@danielx/civet": "^0.10.1",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.0",
-        "@sass-fairy/list": "^1.2.4",
         "@types/node": "^22.8.1",
         "autoprefixer": "^10.4.16",
         "esbuild": "^0.25.0",

@@ -8,10 +8,10 @@ import DataHandler from "./DataHandler";
 
 //
 export default class RemoteReferenceHandler extends DataHandler {
-    #exChanger: any|null;
+    #exChanger: any | null;
 
     //
-    constructor(exChanger: any|null){
+    constructor(exChanger: any | null) {
         super();
         this.#exChanger = exChanger;
     }
@@ -21,14 +21,15 @@ export default class RemoteReferenceHandler extends DataHandler {
 
     //
     $data(t: unknown) { return extract(t) ?? t; }
+    $get(_: unknown | string | null): any { return null; };
     $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
         const data: any = this.$data(meta);
 
         // return meta as is
         if (cmd == "get") { // any remote is disposable
-            if (args[0] == ORG.dispose) { return ()=>{ return this.#exChanger?.$request("dispose", meta, []); }; };
+            if (args[0] == ORG.dispose) { return () => { return this.#exChanger?.$request("dispose", meta, []); }; };
             if (args[0] == ORG.data) { return data; };
-            if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any)=>e?.[ORG.exc]) ?? null; };
+            if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any) => e?.[ORG.exc]) ?? null; };
             if ( // forbidden actions
                 isSymbol(args?.[0]) ||
                 FORBIDDEN_KEYS.has(args?.[0] as string) ||
@@ -39,7 +40,4 @@ export default class RemoteReferenceHandler extends DataHandler {
         //
         return this.#exChanger?.$request(cmd, meta, args);
     }
-
-    //
-    $get(_: unknown|string|null): any { return null; };
 }

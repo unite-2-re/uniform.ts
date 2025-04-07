@@ -10,15 +10,15 @@ import ORG from "../Utils/OrganicType";
 import { PMS, TS } from "../Utils/Alias";
 
 //
-export const hasMemoryBuffer = (target: any)=>{
+export const hasMemoryBuffer = (target: any) => {
     // shared array buffer are not transfer, it's sharing
     return ((target as any)?.buffer instanceof ArrayBuffer) || (typeof SharedArrayBuffer != TS.udf && (target as any)?.buffer instanceof SharedArrayBuffer);
 }
 
 //
 export default class PreCoding {
-    $encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
-    $decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
+    $encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[]) => unknown>();
+    $decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[]) => unknown>();
     $mp = new UUIDMap();
     $hndr = new UniversalHandler();
     $typeDetector = new TypeDetector();
@@ -28,17 +28,17 @@ export default class PreCoding {
         this.$mp = memoryPool;
 
         //
-        this.$encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown> ([
-            ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
+        this.$encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[]) => unknown>([
+            ["a", (organic: boolean, target: unknown, transfer: unknown[] = []) => {
                 if (!organic) {
-                    const encoded = Array.from((target as []) ||[]).map((e)=>this.encode(e, transfer));
+                    const encoded = Array.from((target as []) || []).map((e) => this.encode(e, transfer));
                     return encoded.some(isPromise) ? PMS.all(encoded) : encoded;
                 }
                 return target;
             }],
 
             //
-            ["tf", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
+            ["tf", (organic: boolean, target: unknown, transfer: unknown[] = []) => {
                 if (!organic) {
                     // non-organic just to transfer
                     if (transfer?.indexOf?.(target) < 0 && target != null) {
@@ -66,14 +66,14 @@ export default class PreCoding {
                     };
                 } else {
                     // transfers only when is exists
-                    const org  = (extract(target) || {}) as any;
+                    const org = (extract(target) || {}) as any;
                     const node = (org as any)?.[ORG.node] ?? this?.$mp?.get((org as any)?.[ORG.uuid] as string);
 
                     // if exists
                     if (node != null) {
 
                         // sometimes, `@uuid` may already known in database
-                        const uuid: string = ((org as any)?.[ORG.uuid]||this?.$mp?.get?.(node)||"") as string;
+                        const uuid: string = ((org as any)?.[ORG.uuid] || this?.$mp?.get?.(node) || "") as string;
                         const meta = { // request to transfer node
                             [ORG.type]: "tf",
                             [ORG.uuid]: uuid,
@@ -111,7 +111,7 @@ export default class PreCoding {
             }],
 
             //
-            ["ref", (organic: boolean, target: unknown, _transfer: unknown[] = [])=>{
+            ["ref", (organic: boolean, target: unknown, _transfer: unknown[] = []) => {
                 if (!organic || (target as any)?.[ORG.data]) {
                     const ext = (extract(target) as any)?.[ORG.uuid] as string;
                     const exists = this?.$mp?.get(ext) ?? target;
@@ -126,10 +126,10 @@ export default class PreCoding {
         ]);
 
         //
-        this.$decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>boolean>([
-            ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
+        this.$decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[]) => boolean>([
+            ["a", (organic: boolean, target: unknown, transfer: unknown[] = []) => {
                 if (!organic) {
-                    const decoded = Array.from(target as []).map((e)=>this.decode(e, transfer));
+                    const decoded = Array.from(target as []).map((e) => this.decode(e, transfer));
                     return decoded.some(isPromise) ? PMS.all(decoded) : decoded;
                 }
                 // unusual
@@ -137,10 +137,10 @@ export default class PreCoding {
             }],
 
             //
-            ["tf", (organic: boolean, target: unknown, _transfer: unknown[] = [])=>{
+            ["tf", (organic: boolean, target: unknown, _transfer: unknown[] = []) => {
                 if (organic) {
                     // reformat transfer type, add to registry
-                    const org  = extract(target) as any;
+                    const org = extract(target) as any;
                     const node = ((org as any)?.[ORG.node]) ?? this?.$mp?.get((org as any)?.[ORG.uuid] as string);
 
                     // unable to override exists
@@ -159,9 +159,9 @@ export default class PreCoding {
             }],
 
             //
-            ["ref", (organic: boolean, target: unknown, _transfer: unknown[] = [])=>{
+            ["ref", (organic: boolean, target: unknown, _transfer: unknown[] = []) => {
                 if (organic) {
-                    const org    = extract(target) as any;
+                    const org = extract(target) as any;
                     const exists = this?.$mp?.get((org as any)?.[ORG.uuid] as string);
                     return exists ?? wrapMeta(org, this.$hndr);
                 }
@@ -190,12 +190,6 @@ export default class PreCoding {
     }
 
     //
-    decode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
-        return doOnlyAfterResolve(target, (e)=>this.$decode(e, transfer));
-    }
-
-    //
-    encode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
-        return doOnlyAfterResolve(target, (e)=>this.$encode(e, transfer));
-    }
+    decode(target: unknown | Promise<unknown>, transfer: unknown[] = []) { return doOnlyAfterResolve(target, (e) => this.$decode(e, transfer)); }
+    encode(target: unknown | Promise<unknown>, transfer: unknown[] = []) { return doOnlyAfterResolve(target, (e) => this.$encode(e, transfer)); }
 }
