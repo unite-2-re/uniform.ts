@@ -21,19 +21,19 @@ export default class UniversalHandler extends DataHandler {
     }
 
     //
-    get /*@__MANGLE_PROP__*/ $exc() { return this.#dataHandler?.get?.("rmt")?.$exc; }
+    get $exc() { return this.#dataHandler?.get?.("rmt")?.$exc; }
 
     //
-    /*@__MANGLE_PROP__*/ $data(t: unknown | string | null): unknown {
+    $data(t: unknown | string | null): unknown {
         return (t as any)?.[ORG.data] ?? t;
     }
 
     //
-    /*@__MANGLE_PROP__*/ $addHandler(name: string, handler: DataHandler) { this.#dataHandler.set(name, handler); }
-    /*@__MANGLE_PROP__*/ $getHandler(name: string) { return this.#dataHandler.get(name); }
+    $addHandler(name: string, handler: DataHandler) { this.#dataHandler.set(name, handler); }
+    $getHandler(name: string) { return this.#dataHandler.get(name); }
 
     //
-    /*@__MANGLE_PROP__*/ $hnd(cmd = "access", t: any, ...args: unknown[]) {
+    $hnd(cmd = "access", t: any, ...args: unknown[]) {
         const data: any = this.$data(t);
 
         // isn't promise itself
@@ -66,7 +66,7 @@ export default class UniversalHandler extends DataHandler {
     }
 
     //
-    /*@__MANGLE_PROP__*/ $get(uuid: unknown|string|null) { return this.#dataHandler.get("loc")?.$get?.(uuid); };
+    $get(uuid: unknown|string|null) { return this.#dataHandler.get("loc")?.$get?.(uuid); };
 }
 
 //

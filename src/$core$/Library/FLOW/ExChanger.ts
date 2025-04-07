@@ -63,13 +63,12 @@ export default class ExChanger {
     }
 
     //
-    get   /*@__MANGLE_PROP__*/ $imports() { return this.#flow?.$imports || {}; }
-    get   /*@__MANGLE_PROP__*/ /*@__PURE__*/ $sync() { return this.#flow?.sync?.(); }
-    async /*@__PURE__*/ sync() { await this.$sync; return this; }
+    get $imports() { return this.#flow?.$imports || {}; }
+    get $sync() { return this.#flow?.sync?.(); }
+    async sync() { await this.$sync; return this; }
 
     //doOnlyAfterResolve
-    /*@__MANGLE_PROP__*/ $makePromise<T extends unknown>(target: T|Promise<T>): IWrap<T>|null {
-        //
+    $makePromise<T extends unknown>(target: T|Promise<T>): IWrap<T>|null {
         try {
             const ext = (target as any)?.[ORG.data] ?? target;
             if (isPromise(target)) { return ((new Proxy(MakeReference(ext), new ObjectProxy(this.#handler?.$getHandler?.("pms")))) as IWrap<T>); }
@@ -78,11 +77,10 @@ export default class ExChanger {
             console.error(e);
             return null;
         }
-        //return null;
     }
 
     //
-    /*@__MANGLE_PROP__*/ $act<T extends unknown>(result: T|Promise<T>, cb: (result: T) => void): IWrap<T>|null {
+    $act<T extends unknown>(result: T|Promise<T>, cb: (result: T) => void): IWrap<T>|null {
         try {
             return this.$makePromise(doOnlyAfterResolve(result, cb));
         } catch (e) {
@@ -92,7 +90,7 @@ export default class ExChanger {
     }
 
     //
-    /*@__MANGLE_PROP__*/ $request<T extends unknown>(cmd: string, meta: unknown, args : unknown[]): IWrap<T>|null {
+    $request<T extends unknown>(cmd: string, meta: unknown, args : unknown[]): IWrap<T>|null {
         const transfer: unknown[] = [];
         const encoded = this.#coder?.encode([cmd, meta, ...args], transfer) as any[];
         const result = this.#flow?.callTask?.(encoded, transfer);
@@ -107,12 +105,8 @@ export default class ExChanger {
     }
 
     //
-    //unwrap(obj) { return obj?.[$data] ?? obj; }
-    //local(name) { return wrapMeta({ORG.uuid: name, ORG.type: "reference"}, this.#handler); }
-
-    //
-    /*@__MANGLE_PROP__*/ $importToUnit(source: string)  { return this.#flow?.importToUnit(source); }
-    /*@__MANGLE_PROP__*/ $importToSelf(module: unknown) { return this.#flow?.importToSelf(module); }
+    $importToUnit(source: string)  { return this.#flow?.importToUnit(source); }
+    $importToSelf(module: unknown) { return this.#flow?.importToSelf(module); }
 
     //
     register<T extends object|Function>(object: T, name = ""): string | null {

@@ -3,9 +3,9 @@ import PreCoding from "../PreCoding/PreCoding";
 import { doOnlyAfterResolve, ORG } from "../Utils/Useful";
 
 //
-/*@__MANGLE_PROP__*/ export const $cd = new PreCoding();
-/*@__MANGLE_PROP__*/ export const $mp = $cd.$mp;
-/*@__MANGLE_PROP__*/ export const $dh = $cd.$hndr;
+export const $cd = new PreCoding();
+export const $mp = $cd.$mp;
+export const $dh = $cd.$hndr;
 
 //
 export const $resolver = (command: any) => (command.result);

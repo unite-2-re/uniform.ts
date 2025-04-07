@@ -9,11 +9,11 @@ export default class DataHandler {
     }
 
     //
-    get /*@__MANGLE_PROP__*/ $exc(): any { return null;};
+    get $exc(): any { return null;};
 
     //
-    /*@__MANGLE_PROP__*/ $data(target: unknown|string|null) { return target; };
-    /*@__MANGLE_PROP__*/ $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
+    $data(target: unknown|string|null) { return target; };
+    $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
         const ref: any = this.$data(meta);
 
         // return meta as is
@@ -62,5 +62,5 @@ export default class DataHandler {
     }
 
     //
-    /*@__MANGLE_PROP__*/ $get(_uuid: unknown|string|null): any { return null; };
+    $get(_uuid: unknown|string|null): any { return null; };
 }

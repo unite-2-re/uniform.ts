@@ -17,11 +17,11 @@ export default class RemoteReferenceHandler extends DataHandler {
     }
 
     //
-    get /*@__MANGLE_PROP__*/ $exc() { return this.#exChanger; }
+    get $exc() { return this.#exChanger; }
 
     //
-    /*@__MANGLE_PROP__*/ $data(t: unknown) { return extract(t) ?? t; }
-    /*@__MANGLE_PROP__*/ $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
+    $data(t: unknown) { return extract(t) ?? t; }
+    $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
         const data: any = this.$data(meta);
 
         // return meta as is
@@ -36,10 +36,10 @@ export default class RemoteReferenceHandler extends DataHandler {
             ) { return null; };
         }
 
-        /*@__MANGLE_PROP__*/
+        //
         return this.#exChanger?.$request(cmd, meta, args);
     }
 
     //
-    /*@__MANGLE_PROP__*/ $get(_: unknown|string|null): any { return null; };
+    $get(_: unknown|string|null): any { return null; };
 }

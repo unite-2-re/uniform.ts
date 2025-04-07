@@ -6,12 +6,12 @@ import { ORG, isPromise } from "../Utils/Useful";
 //
 export default class TypeDetector {
 
-    /*@__MANGLE_PROP__*/ detection: Map<string, (d: unknown)=>boolean> = new Map<string, (d: unknown)=>boolean>();
+    detection: Map<string, (d: unknown)=>boolean> = new Map<string, (d: unknown)=>boolean>();
 
     // we working only with unwrapped data, we doesn't accept any promise directly
     constructor() {
         //
-        /*@__MANGLE_PROP__*/ this.detection = new Map<string, (d: unknown)=>boolean>([
+        this.detection = new Map<string, (d: unknown)=>boolean>([
             ["p", (a: unknown): boolean=>{
                 return (typeof a != "object" && typeof a != "function" || typeof a == TS.udf || a == null);
             }],
@@ -23,20 +23,17 @@ export default class TypeDetector {
 
             //
             ["a", (a: unknown): boolean=>{
-                /*@__MANGLE_PROP__*/
                 return Array.isArray(a);
             }],
 
             //
             ["ab", (a: unknown): boolean=>{
-                /*@__MANGLE_PROP__*/
                 return (a instanceof ArrayBuffer || (typeof SharedArrayBuffer != TS.udf && a instanceof SharedArrayBuffer));
             }],
 
             //
             ["ta", (a: unknown): boolean=>{
                 const $buffer: unknown = (a as any)?.buffer;
-                /*@__MANGLE_PROP__*/
                 return ($buffer instanceof ArrayBuffer || (typeof SharedArrayBuffer != TS.udf && $buffer instanceof SharedArrayBuffer));
             }],
 
@@ -64,7 +61,7 @@ export default class TypeDetector {
     }
 
     // [is organic, defined type]
-    /*@__MANGLE_PROP__*/ detectType(data: unknown, transfer: unknown[] = []): [boolean, string] {
+    detectType(data: unknown, transfer: unknown[] = []): [boolean, string] {
         // are data meta type, skip definition
         const organic = extract(data) as any;
         if ((organic as any)?.[ORG.type]) {

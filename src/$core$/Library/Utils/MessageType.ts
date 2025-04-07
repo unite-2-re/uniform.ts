@@ -1,5 +1,3 @@
-/*@__PURE__*/
-
 /*
  * Any message will contains:
  * {
@@ -22,5 +20,3 @@
  * - ["@meta"|"@data"] encoded
  * - Primitive objects of {..."@payloadType"}
  */
-
-/*@__PURE__*/

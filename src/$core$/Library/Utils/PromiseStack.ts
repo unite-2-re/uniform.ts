@@ -18,7 +18,6 @@ export default class PromiseStack<T extends unknown> {
     get(name = "") { return this.#map.get(name); }
 
     // reject by UUID
-    /*@__MANGLE_PROP__*/
     [TS.rjb](name: string, why: unknown) {
         const pm = this.#map.get(name);
         this.#map.delete(name);
@@ -28,7 +27,6 @@ export default class PromiseStack<T extends unknown> {
     }
 
     // resolve by UUID
-    /*@__MANGLE_PROP__*/
     [TS.rvb](name: string, why: unknown) {
         const pm = this.#map.get(name);
         this.#map.delete(name);
@@ -37,13 +35,13 @@ export default class PromiseStack<T extends unknown> {
         return this;
     }
 
-    /*@__MANGLE_PROP__*/ /*@__PURE__*/
+
     hook<T extends unknown>(key: string | null = null, buffer: SharedArrayBuffer | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
-        const pm = /*@__MANGLE_PROP__*/ new SharedChannel(buffer);
+        const pm = new SharedChannel(buffer);
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{
+        setTimeout(()=>{
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);
@@ -57,12 +55,12 @@ export default class PromiseStack<T extends unknown> {
     //  :1 - for waiting or async ops
     // ]
     [TS.cs]<T extends unknown>(key: string | null = null): [string, SharedChannel<T>, SharedArrayBuffer|ArrayBuffer|unknown] {
-        const bf = /*@__MANGLE_PROP__*/ new SharedArrayBuffer(16);
-        const pm = /*@__MANGLE_PROP__*/ new SharedChannel(bf);
+        const bf = new SharedArrayBuffer(16);
+        const pm = new SharedChannel(bf);
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{
+        setTimeout(()=>{
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);
@@ -81,7 +79,7 @@ export default class PromiseStack<T extends unknown> {
         this.#map.set(key ||= UUIDv4(), pm);
 
         // timeout of requests
-        /*@__MANGLE_PROP__*/ setTimeout(()=>{
+        setTimeout(()=>{
             // @ts-ignore ""
             if (this.#map.has(key)) { this[TS.rjb](key, "hang-timeout"); };
         }, HANG_TIMEOUT);

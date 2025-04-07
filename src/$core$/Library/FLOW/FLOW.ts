@@ -4,7 +4,7 @@ import PromiseStack from '../Utils/PromiseStack';
 import { TS } from "../Utils/Alias";
 
 //
-/*@__NOINLINE__*/ /*@__MANGLE_PROP__*/ /*@__PURE__*/ const PM = "postMessage";
+const PM = "postMessage";
 
 // FLOW - is web worker library core (low-level)...
 export default class FLOW {
@@ -26,12 +26,12 @@ export default class FLOW {
                     worker?.[PM]?.({ cmd, uuid, dir: "res", status: "ok", result: "ok", shared: null });
                 } else
                 if (cmd == "import") {
-                    /*@__PURE__*/ import(/* @vite-ignore */ ("" + ev.data.source))?.then?.((m)=>{
+                    import(/* @vite-ignore */ ("" + ev.data.source))?.then?.((m)=>{
                         Object.assign(this.#imports, (m.default ?? m));
                         worker?.[PM]?.({ cmd, uuid, dir: "res", status: "ok", result: "ok", shared: null });
                     })?.catch?.((e)=>{
-                        /*@__PURE__*/ console.error(e);
-                        /*@__PURE__*/ console.trace(e);
+                        console.error(e);
+                        console.trace(e);
                         worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unsupported", shared: null });
                     });
                 } else
@@ -57,13 +57,13 @@ export default class FLOW {
 
                                     // resolve when sync supported
                                     // @ts-ignore ""
-                                    /*@__PURE__*/ this.#promiseStack?.[TS.rvb]?.(uuid, result);
+                                    this.#promiseStack?.[TS.rvb]?.(uuid, result);
                                 });
                             });
                         });
                     } catch(e: any) {
-                        /*@__PURE__*/ console.error(e);
-                        /*@__PURE__*/ console.trace(e);
+                        console.error(e);
+                        console.trace(e);
 
                         //
                         const reason = e.message;
@@ -79,10 +79,10 @@ export default class FLOW {
 
                         // resolve when sync supported
                         // @ts-ignore ""
-                        /*@__PURE__*/ this.#promiseStack?.[TS.rjb]?.(uuid, reason);
+                        this.#promiseStack?.[TS.rjb]?.(uuid, reason);
                     }
                 } else {
-                    /*@__PURE__*/ console.error("Internal command: " + cmd + " not supported.");
+                    console.error("Internal command: " + cmd + " not supported.");
                     worker?.[PM]?.({ cmd, uuid, dir: "res", status: "error", result: "unk" });
                 }
             } else
@@ -92,8 +92,8 @@ export default class FLOW {
                     // @ts-ignore ""
                     this.#promiseStack?.[status != "error" ? TS.rvb : TS.rjb]?.(uuid, resolved ?? null);
                 } catch(e: any) {
-                    /*@__PURE__*/ console.error(e);
-                    /*@__PURE__*/ console.trace(e);
+                    console.error(e);
+                    console.trace(e);
                     // @ts-ignore ""
                     this.#promiseStack?.[TS.rjb]?.(uuid, e?.message);
                 }
@@ -102,21 +102,19 @@ export default class FLOW {
     }
 
     //
-    get /*@__MANGLE_PROP__*/ $imports() {
+    get $imports() {
         return this.#imports;
     }
 
-    /*@__MANGLE_PROP__*/
     importToSelf(module: any) {
         Object.assign(this.#imports, (module)?.default ?? module);
         return this;
     }
-
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/
+    
     importToUnit(source: string, sync = false) {
         // @ts-ignore ""
-        /*@__PURE__*/ const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
-        /*@__PURE__*/ this.#worker?.[PM]?.({
+        const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
+        this.#worker?.[PM]?.({
             status: "pending",
             handler: "$import",
             cmd: "import",
@@ -128,7 +126,6 @@ export default class FLOW {
         return pair?.[1];
     }
 
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/
     sync(sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();
@@ -143,7 +140,6 @@ export default class FLOW {
         return pair?.[1];
     }
 
-    /*@__PURE__*/ /*@__MANGLE_PROP__*/
     callTask($args: any[] = [], transfer: unknown[] = [], sync = false) {
         // @ts-ignore ""
         const pair = this.#promiseStack?.[sync ? TS.cs : TS.cr]?.();

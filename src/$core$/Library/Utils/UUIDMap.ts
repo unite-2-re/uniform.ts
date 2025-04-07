@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { ORG, UUIDv4, type dT, type rT } from "./Useful";
-/*@__NOINLINE__*/ const rg = "register";
+const rg = "register";
 
 //
 const deref = (obj)=>{
@@ -8,19 +8,18 @@ const deref = (obj)=>{
 }
 
 // TODO: planned promised...
-/*@__MANGLE_PROP__*/ /*@__PURE___*/
 export default class UUIDMap<T=dT> {
-    /*@__MANGLE_PROP__*/ #weakMap  = /*@__MANGLE_PROP__*/ new WeakMap<dT, string>();
-    /*@__MANGLE_PROP__*/ #refMap   = /*@__MANGLE_PROP__*/ new Map<string, rT>();
-    /*@__MANGLE_PROP__*/ #registry = /*@__MANGLE_PROP__*/ new FinalizationRegistry<string>((_: string) => {});
-    /*@__MANGLE_PROP__*/ #linked   = /*@__MANGLE_PROP__*/ new Map<dT, number>();
+    #weakMap  = new WeakMap<dT, string>();
+    #refMap   = new Map<string, rT>();
+    #registry = new FinalizationRegistry<string>((_: string) => {});
+    #linked   = new Map<dT, number>();
 
     //
     constructor() {
-        /*@__MANGLE_PROP__*/ this.#linked   = /*@__MANGLE_PROP__*/ new Map<dT, number>();
-        /*@__MANGLE_PROP__*/ this.#weakMap  = /*@__MANGLE_PROP__*/ new WeakMap<dT, string>();
-        /*@__MANGLE_PROP__*/ this.#refMap   = /*@__MANGLE_PROP__*/ new Map<string, rT>();
-        /*@__MANGLE_PROP__*/ this.#registry = /*@__MANGLE_PROP__*/ new FinalizationRegistry<string>((key: string) => {
+        this.#linked   = new Map<dT, number>();
+        this.#weakMap  = new WeakMap<dT, string>();
+        this.#refMap   = new Map<string, rT>();
+        this.#registry = new FinalizationRegistry<string>((key: string) => {
             this.#refMap.delete(key);
         });
     }

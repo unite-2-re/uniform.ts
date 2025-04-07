@@ -14,22 +14,22 @@ export default class PromiseHandler extends DataHandler {
     constructor() { super(); }
 
     //
-    /*@__MANGLE_PROP__*/ $data(target: unknown|Promise<unknown>) {
+    $data(target: unknown|Promise<unknown>) {
         return (isPromise((target as any)?.[ORG.data]) ? (target as any)?.[ORG.data] : target) ?? target;
     }
 
     //
-    /*@__MANGLE_PROP__*/ $deferOp(target: unknown|Promise<unknown>, cb = (e: any)=>e) {
+    $deferOp(target: unknown|Promise<unknown>, cb = (e: any)=>e) {
         return doOnlyAfterResolve(target, cb) ?? target;
     }
 
     //
-    /*@__MANGLE_PROP__*/ $wrapPromise<T extends unknown>(result: T|Promise<T>, handler: DataHandler|null = null): IWrap<T>|null {
+    $wrapPromise<T extends unknown>(result: T|Promise<T>, handler: DataHandler|null = null): IWrap<T>|null {
         return $wrapPromise(result, handler ?? this);
     }
 
     //
-    /*@__MANGLE_PROP__*/$hnd(cmd: string, meta: unknown, ...args: unknown[]) {
+    $hnd(cmd: string, meta: unknown, ...args: unknown[]) {
         // isn't promise itself
         const data = this.$data(meta);
 
@@ -63,12 +63,11 @@ export default class PromiseHandler extends DataHandler {
     }
 
     //
-    /*@__MANGLE_PROP__*/$get(_uuid: unknown|string|null): any { return null; };
+    $get(_uuid: unknown|string|null): any { return null; };
 }
 
 //
-/*@__PURE__*/
-export const /*@__MANGLE_PROP__*/ $wrapPromise = <T extends unknown>(result: T|Promise<T>, handler: DataHandler = new PromiseHandler()): IWrap<T>|null => {
+export const $wrapPromise = <T extends unknown>(result: T|Promise<T>, handler: DataHandler = new PromiseHandler()): IWrap<T>|null => {
     if (isPromise(result)) {
         return new Proxy(MakeReference(result), new ObjectProxy(handler)) as IWrap<T>|null;
     }

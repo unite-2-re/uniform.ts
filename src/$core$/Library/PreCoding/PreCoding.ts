@@ -9,26 +9,25 @@ import { wrapMeta } from "../Handlers/UniversalHandler";
 import ORG from "../Utils/OrganicType";
 import { PMS, TS } from "../Utils/Alias";
 
-/*@__MANGLE_PROP__*/ /*@__PURE__*/
+//
 export const hasMemoryBuffer = (target: any)=>{
     // shared array buffer are not transfer, it's sharing
     return ((target as any)?.buffer instanceof ArrayBuffer) || (typeof SharedArrayBuffer != TS.udf && (target as any)?.buffer instanceof SharedArrayBuffer);
 }
 
-/*@__MANGLE_PROP__*/ /*@__PURE__*/
+//
 export default class PreCoding {
-    /*@__MANGLE_PROP__*/ $encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
-    /*@__MANGLE_PROP__*/ $decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
-    /*@__MANGLE_PROP__*/ $mp = new UUIDMap();
-    /*@__MANGLE_PROP__*/ $hndr = new UniversalHandler();
-    /*@__MANGLE_PROP__*/ $typeDetector = new TypeDetector();
+    $encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
+    $decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown>();
+    $mp = new UUIDMap();
+    $hndr = new UniversalHandler();
+    $typeDetector = new TypeDetector();
 
     //
     constructor(memoryPool = new UUIDMap()) {
-        /*@__MANGLE_PROP__*/
         this.$mp = memoryPool;
 
-        /*@__MANGLE_PROP__*/
+        //
         this.$encoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>unknown> ([
             ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
                 if (!organic) {
@@ -126,7 +125,7 @@ export default class PreCoding {
             }]
         ]);
 
-        /*@__MANGLE_PROP__*/
+        //
         this.$decoder = new Map<string, (organic: boolean, target: unknown, transfer: unknown[])=>boolean>([
             ["a", (organic: boolean, target: unknown, transfer: unknown[] = [])=>{
                 if (!organic) {
@@ -173,7 +172,7 @@ export default class PreCoding {
     }
 
     //
-    /*@__MANGLE_PROP__*/ $decode(target: unknown, transfer: unknown[] = []) {
+    $decode(target: unknown, transfer: unknown[] = []) {
         const [o, t] = this.$typeDetector.detectType(target, transfer);
         if (this.$decoder.has(t)) {
             return this.$decoder.get(t)?.(o, target, transfer) ?? target;
@@ -182,7 +181,7 @@ export default class PreCoding {
     }
 
     //
-    /*@__MANGLE_PROP__*/ $encode(target: unknown, transfer: unknown[] = []) {
+    $encode(target: unknown, transfer: unknown[] = []) {
         const [o, t] = this.$typeDetector.detectType(target, transfer);
         if (this.$encoder.has(t)) {
             return this.$encoder.get(t)?.(o, target, transfer) ?? target;
@@ -190,15 +189,13 @@ export default class PreCoding {
         return target;
     }
 
-
-
     //
-    /*@__MANGLE_PROP__*/ decode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
+    decode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
         return doOnlyAfterResolve(target, (e)=>this.$decode(e, transfer));
     }
 
     //
-    /*@__MANGLE_PROP__*/ encode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
+    encode(target: unknown|Promise<unknown>, transfer: unknown[] = []) {
         return doOnlyAfterResolve(target, (e)=>this.$encode(e, transfer));
     }
 }
