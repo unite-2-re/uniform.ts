@@ -1,14 +1,37 @@
-import rollupOptions, {plugins, NAME} from "./rollup/uniform/rollup.config";
-import {worker} from "./rollup/worker/rollup.config";
-import terserOptions from "./rollup/shared.config";
+import {worker} from "./rollup/rollup.config";
 import {resolve} from "node:path";
 
 //
-export const __dirname = resolve(import.meta.dirname, "./");
+function objectAssign(target, ...sources) {
+    if (!sources.length) return target;
+
+    const source = sources.shift();
+    if (source && typeof source === 'object') {
+        for (const key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+                if (source[key] && typeof source[key] === 'object') {
+                    if (!target[key] || typeof target[key] !== 'object') {
+                        target[key] = Array.isArray(source[key]) ? [] : {};
+                    }
+                    objectAssign(target[key], source[key]);
+                } else {
+                    target[key] = source[key];
+                }
+            }
+        }
+    }
+
+    return objectAssign(target, ...sources);
+}
 
 //
-export default {
-    plugins,
+const importConfig = (url, ...args)=>{
+    return import(url)?.then?.((m)=>m?.default?.(...args));
+}
+
+//
+export const __dirname = resolve(import.meta.dirname, "./");
+export default objectAssign({
     worker,
     resolve: {
         alias: {
@@ -21,40 +44,11 @@ export default {
             "@service": resolve(__dirname, "./src/$service$/"),
             "/assets/": resolve(__dirname, "./assets/"),
             "/frontend/": resolve(__dirname, "./frontend/"),
-            "/plugins/": resolve(__dirname, "./plugins/"),
-            "u2re/": resolve(__dirname, '/externals/modules/'),
-            'u2re-src/': resolve(__dirname, '../'),
-            "u2re/cdnImport": resolve(__dirname, '../cdnImport.mjs'),
-            "u2re/dom": resolve(__dirname, "../dom.ts/src/index.ts"),
-            "u2re/lure": resolve(__dirname, "../BLU.E/src/index.ts"),
-            "u2re/object": resolve(__dirname, "../object.ts/src/index.ts"),
-            "u2re/uniform": resolve(__dirname, "../uniform.ts/src/index.ts"),
-            "u2re/theme": resolve(__dirname, "../theme.core/src/index.ts"),
-        },
-    },
-    server: {
-        port: 5173,
-        open: false,
-        origin: "/",
-        fs: {
-            allow: ['..', resolve(__dirname, '../') ]
+            "/plugins/": resolve(__dirname, "./plugins/")
         },
     },
     build: {
-        chunkSizeWarningLimit: 1600,
-        assetsInlineLimit: 1024 * 1024,
-        minify: "terser",
-        sourcemap: 'hidden',
-        target: "esnext",
-        name: NAME,
-        lib: {
-            formats: ["es"],
-            entry: resolve(__dirname, './src/main/index.ts'),
-            name: NAME,
-            fileName: NAME,
-        },
-        rollupOptions,
-        //terserOptions
+        lib: { entry: resolve(__dirname, './src/main/index.ts') }
     },
     optimizeDeps: {
         include: [
@@ -77,4 +71,4 @@ export default {
         ],
         force: true
     }
-}
+}, importConfig("../shared/rollup.config.js", await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"}), import.meta.dirname));
