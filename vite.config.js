@@ -3,7 +3,8 @@ import { resolve  } from "node:path";
 import { readFile } from "node:fs/promises";
 
 //
-function objectAssign(target, ...sources) {
+const importConfig = (url, ...args)=>{ return import(url)?.then?.((m)=>m?.default?.(...args)); }
+const objectAssign = (target, ...sources) => {
     if (!sources.length) return target;
 
     const source = sources.shift();
@@ -23,11 +24,6 @@ function objectAssign(target, ...sources) {
     }
 
     return objectAssign(target, ...sources);
-}
-
-//
-const importConfig = (url, ...args)=>{
-    return import(url)?.then?.((m)=>m?.default?.(...args));
 }
 
 //
