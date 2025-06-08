@@ -1,8 +1,6 @@
-import terserOptions from "./shared.config"
-import terser from '@rollup/plugin-terser';
-import typescript from '@rollup/plugin-typescript';
-import optimizer from 'vite-plugin-optimizer';
+import terserOptions  from "./shared.config"
 import createExternal from "vite-plugin-external";
+import optimizer from 'vite-plugin-optimizer';
 
 //
 import { compression } from 'vite-plugin-compression2';
@@ -38,8 +36,8 @@ export const TSConfig = {
 
 //
 export const plugins = [
-    typescript(TSConfig),
-    terser(terserOptions),
+    //typescript(TSConfig),
+    //terser(terserOptions),
     optimizer({}),
     compression(),
     createExternal({
@@ -71,7 +69,6 @@ export const rollupOptions = {
         dir: './dist',
         sourcemap: 'hidden',
         exports: "auto",
-        esModuleInterop: true,
         experimentalMinChunkSize: 500_500,
         inlineDynamicImports: true,
 	}
