@@ -24,9 +24,7 @@
         "inlineSources": true,
         "inlineSourceMap": true,
         "sourceMap": false,
-        //"allowImportingTsExtensions": true,
-        //"emitDeclarationOnly": true,
-        //"noEmit": true,
+        "experimentalDecorators": true,
         "typeRoots": ["plugins/global.d.ts"]
     }
 }
