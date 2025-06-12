@@ -30,6 +30,7 @@ export default class RemoteReferenceHandler extends DataHandler {
             if (args[0] == ORG.dispose) { return () => { return this.#exChanger?.$request("dispose", meta, []); }; };
             if (args[0] == ORG.data) { return data; };
             if (args[0] == ORG.exc) { return this.$exc ?? data?.[ORG.exc] ?? data?.then?.((e: any) => e?.[ORG.exc]) ?? null; };
+            if ((args[0] == "value" || args[0] == Symbol.toPrimitive) && (typeof data != "object" && typeof data != "function")) { return data; };
             if ( // forbidden actions
                 isSymbol(args?.[0]) ||
                 FORBIDDEN_KEYS.has(args?.[0] as string) ||
