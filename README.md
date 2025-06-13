@@ -1,67 +1,122 @@
-# 🏬 Uniform.TS 🏬
+# 🏬 Uniform.TS
 
-Replacement of all my web workers libraries.
+> **Uniform.TS** — A modern replacement for all my web workers libraries.
 
-The project is being revived, but I can't give a full guarantee yet.
+<p align="center">
+  <a href="https://github.com/unite-2-re/uniform.ts">
+    <img src="https://img.shields.io/badge/repo-unite--2--re%2Funiform.ts-blue?logo=github&style=flat-square" alt="GitHub Repo"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/stargazers">
+    <img src="https://img.shields.io/github/stars/unite-2-re/uniform.ts?style=flat-square" alt="GitHub stars"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/unite-2-re/uniform.ts?style=flat-square" alt="License"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/commits/main">
+    <img src="https://img.shields.io/github/last-commit/unite-2-re/uniform.ts?style=flat-square" alt="Last Commit"/>
+  </a>
+  <a href="https://www.npmjs.com/package/uniform.ts">
+    <img src="https://img.shields.io/npm/v/uniform.ts?style=flat-square&logo=npm&color=orange" alt="npm version"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/unite-2-re/uniform.ts/ci.yml?branch=main&style=flat-square" alt="Build Status"/>
+  </a>
+  <a href="https://codecov.io/gh/unite-2-re/uniform.ts">
+    <img src="https://img.shields.io/codecov/c/github/unite-2-re/uniform.ts?style=flat-square" alt="Coverage Status"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/issues">
+    <img src="https://img.shields.io/github/issues/unite-2-re/uniform.ts?style=flat-square" alt="Issues"/>
+  </a>
+  <a href="https://github.com/unite-2-re/uniform.ts/pulls">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" alt="PRs Welcome"/>
+  </a>
+</p>
 
-Just had some new thoughts about him. New architectural sketches.
+---
 
-The whole idea is not based on some organic principles.
+## Key Links
 
-## Test Code
+- [Repository](https://github.com/unite-2-re/uniform.ts)
+- [npm Package](https://www.npmjs.com/package/uniform.ts)
+- [Open Issues](https://github.com/unite-2-re/uniform.ts/issues)
+- [Pull Requests](https://github.com/unite-2-re/uniform.ts/pulls)
+- [License](https://github.com/unite-2-re/uniform.ts/blob/main/LICENSE)
+- [Actions / CI](https://github.com/unite-2-re/uniform.ts/actions)
+- [Coverage](https://codecov.io/gh/unite-2-re/uniform.ts)
 
-Host code:
+---
 
-```ts
+## 🚧 Project Status
+
+> **Note:** The project is being revived. There are no guarantees of stability yet, but new architectural ideas and sketches are in progress.
+
+---
+
+## ✨ Key Concepts
+
+- Unified approach to working with web workers
+- New architectural patterns
+- Not based on any organic principles
+
+---
+
+## 📦 Installation
+
+```bash
+npm install uniform.ts
+# or
+yarn add uniform.ts
+```
+
+---
+
+## 🧑‍💻 Usage Example
+
+### Host Code
+
+```typescript
 // deno-lint-ignore-file no-explicit-any
-import moduleLoader, {doTransfer, getContext, sync} from "../dist/uniform.js";
-//import moduleLoader, {doTransfer, getContext, sync} from "../dist-wp/main.mjs";
+import moduleLoader, { doTransfer, getContext, sync } from "../dist/uniform.js";
+// import moduleLoader, { doTransfer, getContext, sync } from "../dist-wp/main.mjs";
 
-// typescript modules doesn't supported directly...
-const module = (await (moduleLoader( new URL("./Worker.mjs", import.meta.url).href )?.catch?.(console.trace.bind(console)))) as any;
+// TypeScript modules aren't supported directly...
+const module = (await (moduleLoader(new URL("./Worker.mjs", import.meta.url).href)?.catch?.(console.trace.bind(console)))) as any;
 const ctx = getContext(module);
 if (!ctx) throw new Error("Invalid context or worker...");
 
-//
-const transferCheck = (ab: any)=>{ console.log(ab); };
-const hostAction = async ()=>{
+const transferCheck = (ab: any) => { console.log(ab); };
+const hostAction = async () => {
     // @ts-ignore ""
     const TestClass: any = module.TestClass;
     console.log(await TestClass.lab);
 
-    //
     const tgn = (new TestClass());
     await tgn?.callback?.(6);
 
-    // get arrayBuffer from context registry
+    // Get arrayBuffer from context registry
     console.log(await doTransfer(ctx, "", module?.regrets));
 }
 
-// set context extras (visible in worker)
+// Set context extras (visible in worker)
 ctx["transferCheck"] = transferCheck;
 ctx["hostAction"] = hostAction;
 
-// synchronize
+// Synchronize
 await ctx[sync];
 
-//
 const workerAction = (await module?.workerAction);
 
-//
 await hostAction();
 await workerAction?.();
 ```
 
-ES module for worker context:
+### ES Module for Worker Context
 
-```js
-//
+```javascript
 let ctx = {}, utils = {};
-export const $importContext$ = (U)=>({ctx, utils} = U);
+export const $importContext$ = (U) => ({ ctx, utils } = U);
 
-// after sync you can register
 export class TestClass {
-    //clips: number;
     constructor() {
         console.log("Chips");
         this.clips = 0;
@@ -74,46 +129,35 @@ export class TestClass {
     }
 }
 
-// after, prefers sync with receiver
 export const regrets = new ArrayBuffer(64);
-export const workerAction = async ()=>{
-    //
-    const transferCheck = await ctx?.["transferCheck"]; //as ((_: ArrayBuffer|unknown)=>unknown)|null;
-
-    // (sending as argument, unusual here)
+export const workerAction = async () => {
+    const transferCheck = await ctx?.["transferCheck"];
     const bravery = new ArrayBuffer(64);
     await (transferCheck?.(utils.transfer(ctx, bravery)));
-
-    // should to be detached
     console.warn(bravery);
 }
 ```
 
-## Vite mod for `worker.ts`
+---
 
-### Parts
+## 📚 Documentation
 
-Main code in transform...
+- [Uniform.TS Repository](https://github.com/unite-2-re/uniform.ts)
+- [Open Issues](https://github.com/unite-2-re/uniform.ts/issues)
+- [Pull Requests](https://github.com/unite-2-re/uniform.ts/pulls)
 
-```js
-if (compressRE.test(id)) {
-    const chunk = await bundleWorkerEntry(config, id)
-    const b64c = Buffer.from(
-        await new Promise<Uint8Array>((r) =>
-            gzip(strToU8(chunk.code), { level: 9 }, (_, d) => r(d)),
-        ),
-    ).toString('base64')
-    return {
-        code: `const b64c = "${b64c}"; export default b64c;`,
-        // Empty sourcemap to suppress Rollup warning
-        map: { mappings: '' },
-    }
-}
-```
+---
 
-Import library `fflate`:
+## 🤝 Contributing
 
-```js
-// sometimes needs dedicated library for compress
-import { gzip, strToU8 } from 'fflate'
-```
+We welcome your [pull requests](https://github.com/unite-2-re/uniform.ts/pulls) and [issues](https://github.com/unite-2-re/uniform.ts/issues)!
+
+---
+
+## 📝 License
+
+[MIT License](./LICENSE)
+
+---
+
+**_Uniform.TS — a modern approach to working with web workers!_**
