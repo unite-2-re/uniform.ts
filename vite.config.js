@@ -30,7 +30,8 @@ const objectAssign = (target, ...sources) => {
 export const NAME = "uniform";
 export const __dirname = resolve(import.meta.dirname, "./");
 export default objectAssign(
-    await importConfig(resolve(__dirname, "../shared/vite.config.js"),
+    //await importConfig(resolve(__dirname, "../shared/vite.config.js"),
+    await importConfig(resolve(__dirname, "./shared/vite.config.js"), // pass github workflow
         NAME,
         await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"}),
         __dirname
