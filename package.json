@@ -19,6 +19,7 @@
         "last 1 firefox version"
     ],
     "devDependencies": {
+        "@danielx/civet": "^0.10.4",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.0",
         "@types/node": "^22.8.1",
