@@ -1,6 +1,6 @@
-# 🏬 Uniform.TS
+<h1 align="center"> 🏬 Uniform.TS 🏬 </h1>
 
-> **Uniform.TS** — A modern replacement for all my web workers libraries.
+<p align="center"><b>Uniform.TS</b> — A modern replacement for all my web workers libraries.</p>
 
 <p align="center">
 <a href="https://github.com/unite-2-re/uniform.ts"><img src="https://img.shields.io/badge/repo-unite--2--re%2Funiform.ts-blue?logo=github&style=flat-square" alt="GitHub Repo"/></a>
