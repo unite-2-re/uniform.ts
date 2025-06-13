@@ -39,6 +39,7 @@
         "vite-plugin-external": "^6.0.1",
         "vite-plugin-minify": "^2.0.0",
         "vite-plugin-optimizer": "^1.4.3",
-        "vite-plugin-singlefile": "^2.0.2"
+        "vite-plugin-singlefile": "^2.0.2",
+        "vite-tsconfig-paths": "^5.1.4"
     }
 }
