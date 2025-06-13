@@ -23,6 +23,7 @@
         "@rollup/plugin-typescript": "^12.1.0",
         "@types/node": "^22.8.1",
         "autoprefixer": "^10.4.16",
+        "cssnano": "^7.0.7",
         "esbuild": "^0.25.0",
         "eslint": "^9.13.0",
         "eslint-config-prettier": "^10.0.1",
