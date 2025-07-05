@@ -1,10 +1,10 @@
 {
     "include": ["./src/**/*"],
-    "exclude": ["./test/**/*", "./dist/**/*", "./u2re/**/*", "./src/$polyfill$/*"],
+    "exclude": ["./test/**/*", "./dist/**/*", "./fest/**/*", "./src/$polyfill$/*"],
     "compilerOptions": {
         "paths": {
-            "u2re/*": ["./externals/modules/*"],
-            "u2re-src/*": ["../*"],
+            "fest/*": ["./externals/modules/*"],
+            "fest-src/*": ["../*"],
         },
         "target": "ESNext",
         "module": "ESNext",

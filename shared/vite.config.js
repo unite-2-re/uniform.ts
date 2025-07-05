@@ -14,14 +14,14 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export const initiate = (NAME = "generic", tsconfig = {}, __dirname = resolve("./", import.meta.dirname))=>{
     const $resolve = {
         alias: {
-            'u2re-src/': resolve(__dirname, '../'),
-            'u2re/': resolve(__dirname, '/externals/modules/'),
-            "u2re/cdnImport": resolve(__dirname, '../cdnImport.mjs'),
-            "u2re/dom": resolve(__dirname, "../dom.ts/src/index.ts"),
-            "u2re/lure": resolve(__dirname, "../lur.e/src/index.ts"),
-            "u2re/object": resolve(__dirname, "../object.ts/src/index.ts"),
-            "u2re/uniform": resolve(__dirname, "../uniform.ts/src/index.ts"),
-            "u2re/theme": resolve(__dirname, "../theme.core/src/index.ts"),
+            'fest-src/': resolve(__dirname, '../'),
+            'fest/': resolve(__dirname, '/externals/modules/'),
+            "fest/cdnImport": resolve(__dirname, '../cdnImport.mjs'),
+            "fest/dom": resolve(__dirname, "../dom.ts/src/index.ts"),
+            "fest/lure": resolve(__dirname, "../lur.e/src/index.ts"),
+            "fest/object": resolve(__dirname, "../object.ts/src/index.ts"),
+            "fest/uniform": resolve(__dirname, "../uniform.ts/src/index.ts"),
+            "fest/theme": resolve(__dirname, "../theme.core/src/index.ts"),
         },
     }
 
@@ -103,11 +103,11 @@ export const initiate = (NAME = "generic", tsconfig = {}, __dirname = resolve(".
         compression(),
         createExternal({
             interop: 'auto',
-            externals: { "externals": "externals", "dist": "dist", "u2re": "u2re", "u2re-src": "u2re-src" },
+            externals: { "externals": "externals", "dist": "dist", "fest": "fest", "fest-src": "fest-src" },
             externalizeDeps: [
                 "externals", "/externals", "./externals",
                 "dist", "/dist", "./dist",
-                "u2re", "../"
+                "fest", "../"
             ]
         }),
     ];
@@ -118,13 +118,13 @@ export const initiate = (NAME = "generic", tsconfig = {}, __dirname = resolve(".
         treeshake: 'smallest',
         input: "./src/index.ts",
         external: (source) => {
-            if (source.startsWith("/externals") || source.startsWith("u2re")) return true;
+            if (source.startsWith("/externals") || source.startsWith("fest")) return true;
             return false;
         },/*
         external: [
             "externals", "/externals", "./externals",
             "dist", "/dist", "./dist",
-            "u2re", "../"
+            "fest", "../"
         ],*/
 
         output: {
